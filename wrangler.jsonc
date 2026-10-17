@@ -6,5 +6,9 @@
     "directory": "./dist",
     // Serve dist/404.html (built from src/pages/404.astro) with a 404 status.
     "not_found_handling": "404-page"
-  }
+  },
+  "routes": [
+    { "pattern": "yinzhuoei.com", "custom_domain": true },
+    { "pattern": "www.yinzhuoei.com", "custom_domain": true }
+  ]
 }
