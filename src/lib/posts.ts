@@ -5,8 +5,9 @@ import { readingTime } from '../i18n/utils';
 export type Post = CollectionEntry<'blog'>;
 
 export function postSlug(post: Post): string {
-  // glob loader ids include the lang folder (e.g. "en/my-post").
-  return post.data.slug ?? post.id.split('/').pop()!;
+  // Content is grouped per post: "<post-slug>/<lang>.md". The URL slug is the
+  // post folder, so the language suffix is dropped.
+  return post.data.slug ?? post.id.split('/').slice(0, -1).join('/');
 }
 
 export async function getPosts(lang?: Lang): Promise<Post[]> {

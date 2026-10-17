@@ -1,0 +1,476 @@
+---
+title: "2021 Frontend Interview Experience & Study Guide"
+description: "My 2021 frontend interview experience and conceptual study notes covering JavaScript event loop, closures, TDZ, prototype chains, Vue 2/3 internals, build tools, CSS rendering, and browser engineering."
+date: 2021-06-04
+lang: en
+translationKey: "2021-06-04_547_2021年前端面经"
+categories:
+  - "Frontend"
+  - "Life"
+  - "Deep Dive"
+views: 8847
+draft: false
+---
+
+![W.png](https://static.yinzhuoei.com/typecho/2021/06/04/092113063901743/W.png)
+
+# 2021 Frontend Interview Experience & Study Guide
+
+I have now embarked on a new journey, so my previous job-hunting post on the blog is officially retired. This is my first time writing an interview experience recap. I'm sharing this in hopes that readers understand:
+
+1. **Don't treat this as rote interview questions to memorize.** These explanations are merely conceptual thought processes; you'll notice many of my answers are high-level or even contain inaccuracies.
+2. **Don't use these questions to interrogate candidates.** A great interviewer shouldn't be a walking question bank; you should evaluate whether a candidate fits your team's tech stack and actual delivery needs rather than quizzing on trivia. Inquiring deeply into real project engineering problems is far more valuable than asking 100 isolated concept questions.
+3. **Sharing this also documents my personal journey.** I hope it gives everyone a general understanding of the frontend hiring expectations in Xi'an at this time. If you spot any mistakes in my explanations, feel free to call me out in the comments—let's discuss and I'll gladly correct them!
+4. **Sources of questions:** Some are questions I always asked when interviewing candidates, while others come from interview rounds at Woqu, Tencent Cloud, and the Werewolf team. The questions my current company asks are not included here; this post is purely for learning and peer exchange.
+5. **Additional reading:** Some of these topics have dedicated deep-dive posts on my blog (such as Vue 3 and Vite), so feel free to check those out as well~
+
+Bookmarking my blog and current open-source project:
+
+[Yin Zhuo Ei - Personal Tech Blog](https://yinzhuoei.com)
+
+Recent project:
+
+[swordCodePractice/InternetQuestionBank](https://github.com/swordCodePractice/InternetQuestionBank)
+
+Project name: Sword Code Questions, an interview practice mini-program designed to help fellow developers level up during fragmented pockets of free time.
+
+---
+
+## JS
+
+### Event Loop Model: Synchronous vs. Asynchronous, Blocking vs. Non-blocking, Message Queue, Call Stack, GUI Rendering
+
+Although JavaScript is single-threaded on its main execution thread, the runtime environment provides numerous worker threads (e.g., Timer thread, Network/Ajax thread, Event listener thread). In distributed and asynchronous computing, **synchronous** and **asynchronous** describe **communication mechanisms**: whether the caller gets the result immediately. They should not be conflated with blocking and non-blocking. **Blocking** means subsequent execution halts while waiting for a result; **non-blocking** means execution proceeds immediately regardless of whether the result is ready.
+
+When the JS engine encounters an asynchronous task, it registers the task callback and delegates execution to the corresponding background thread (like Ajax) via the **event loop**. The main thread continues running current synchronous code in the call stack. Once the worker thread finishes, the event loop pushes the callback into the **message queue (task queue)**. Whenever the main thread call stack empties, the engine dequeues and executes the oldest task in the message queue. This cyclic process of picking tasks and executing callbacks is the core of the Event Loop.
+
+HTML parsing and DOM tree construction are handled by the **GUI rendering thread**. The GUI thread and the JS engine thread are mutually exclusive. The GUI thread can only run when the JS call stack is empty. Consequently, long-running JavaScript execution freezes the UI and delays GUI rendering.
+
+### Closures and Scope (Lexical Environment)
+
+Whenever a function is declared in JavaScript, a closure is formed. A closure acts like an encapsulated bubble carrying references to the lexical environment where the function was created. A closure persists in memory even after its outer execution context exits, allowing the inner function to access those variables at any point (until garbage collection determines they are unreachable). We leverage closures for private variables, event callbacks, memoization, and currying.
+
+Regarding scope, JS features **global scope**, **function scope**, and **block scope**. Global scope encompasses code declared directly on `window` or at the top level of scripts. Function scope is bounded by function declarations. Block scope, introduced in ES6 via `let` and `const` (as well as `try/catch` blocks and `with` statements), restricts variable accessibility strictly within enclosing `{}` braces.
+
+### Temporal Dead Zone (TDZ)
+
+The Temporal Dead Zone (TDZ) isn't limited to `let` and `const`; it can surface in multiple language constructs (such as default parameter evaluations). Let's understand what TDZ represents: if we access a variable declared with `let` or `const` prior to its declaration statement, the engine throws a `ReferenceError`, whereas `var` yields `undefined`. Under the ECMAScript specification, `let` and `const` variables are created when their lexical scope is instantiated, but they remain uninitialized until lexical binding (evaluation) occurs. Attempting to read them before initialization triggers an error. **The window of time between lexical scope instantiation and variable initialization is the Temporal Dead Zone (TDZ).**
+
+Variable hoisting still exists conceptually for `let` and `const`—they are recognized during compile-time scope setup. If an uninitialized `let` variable is evaluated without an assignment, it evaluates to `undefined`. TDZ also manifests during `typeof` checks and parameter defaults that reference subsequent parameters. TDZ encourages writing clean, predictable code with clear variable declaration order and without duplicate variable naming.
+
+### Prototype and Prototype Chain
+
+The prototype chain in JavaScript is an elegant real-world implementation of a linked list data structure. Every object in JavaScript has an internal `[[Prototype]]` link exposed via `__proto__`. Functions also possess a `prototype` property pointing to their prototype object.
+
+```jsx
+function foo(){};
+foo.prototype.test = "this is test";
+
+// 'a' is an instance of foo, hence an object.
+// Its internal prototype points to foo's prototype object.
+let a = new foo();
+a.test; // "this is test" -> accesses the constructor's prototype method via __proto__
+```
+
+`Function` itself is also an object. What does its `__proto__` point to? Since `__proto__` points to the prototype of its constructor, and `Function`'s constructor is `Function`, `Function.__proto__ === Function.prototype`.
+
+`Function.prototype.__proto__` points to `Object.prototype`, and `Object.prototype.__proto__` equals `null`. Under the specification, `null` has no prototype, marking the terminal end of all prototype chains. When an object fails to find a property directly on itself, the engine traverses upward along the prototype chain until it finds the property or reaches `null`.
+
+Summary:
+1. Objects have a `__proto__` property pointing to the prototype object of their constructor.
+2. Functions have both `__proto__` and a `prototype` property pointing to the prototype object used when instantiated.
+
+### Functions & IIFE
+
+Functions are first-class citizens in JavaScript. Beyond standard declarations and expressions, a classic pattern is the IIFE (Immediately Invoked Function Expression):
+
+```jsx
+(function(){
+    console.log("hello world");
+})()
+```
+
+An IIFE ensures that variables declared within the anonymous function remain strictly scoped to it, preventing pollution of the global namespace.
+
+### Asynchronous Script Loading (async vs. defer)
+
+Prior to HTML5, when the browser parser encountered a `<script>` tag, parsing paused immediately while the script was fetched and executed synchronously, blocking downstream DOM construction. HTML5 introduced two boolean attributes:
+- `async`: The script is fetched asynchronously in parallel with DOM parsing. As soon as download completes, DOM parsing pauses while the script executes. Execution order is non-deterministic.
+- `defer`: The script is fetched asynchronously in parallel with DOM parsing, but execution is deferred until HTML parsing completes (just before `DOMContentLoaded`). Scripts with `defer` preserve document order.
+
+For standard application bundles, `defer` is generally preferable as it prevents render blocking while respecting execution order.
+
+### Promise & async/await
+
+In early JavaScript development, nested asynchronous operations relied heavily on callbacks:
+
+```jsx
+request(data, (res) => {
+    request(res, (res1) => {
+        console.log("callback hell is painful!!");
+    });
+});
+```
+
+Deep nesting produced "callback hell"—fragile, unreadable code with convoluted error handling. Promises solve this by reifying asynchronous results into first-class objects representing eventual completion:
+
+```jsx
+const a1 = new Promise((resolve, reject) => {
+    // resolve passes data to then()
+    // reject passes errors to catch()
+});
+a1.then(res => {}).catch(err => {});
+```
+
+A Promise has three immutable states:
+1. `fulfilled` (resolved)
+2. `rejected` (failed)
+3. `pending` (initial state)
+
+Once transitioned out of `pending`, the state cannot change again.
+
+`async/await` (introduced in ES2017) provides syntactic sugar over Promises and generators. It allows asynchronous code to be read and written in a synchronous, linear fashion, making error handling with `try/catch` and flow control significantly clearer than deep `.then()` chains.
+
+*(Note: Review Promise/A+ specification details for edge cases.)*
+
+### Understanding `this`
+
+In most circumstances, `this` is determined by how a function is called:
+- In method calls (`obj.fn()`), `this` points to the invoking object.
+- In normal function calls (`fn()`), `this` points to `window` (or `undefined` in strict mode).
+- With `apply`, `call`, and `bind`, `this` is explicitly set to the first argument.
+- Arrow functions do not bind their own `this`. Instead, they capture the `this` value of their enclosing lexical context at definition time.
+
+### Proxy vs. Object.defineProperty
+
+Vue 2's reactivity is founded upon `Object.defineProperty()`. Vue 3 transitioned to `Proxy` (though primitives via `ref` still use getter/setter wrappers).
+
+`Proxy` wraps a target object, intercepting operations such as property lookups, assignments, enumeration, and function invocations:
+
+```jsx
+const target = {};
+const proxy = new Proxy(target, {
+   get (target, key, receiver) {
+       return 567567;
+   }
+});
+console.log(proxy.getData); // 567567
+```
+
+Key differences between `Proxy` and `Object.defineProperty`:
+1. **Nested objects**: `Object.defineProperty` requires recursive upfront traversal over every property across all levels (hence Vue 2's performance cost and deep option in watchers). `Proxy` intercepts at the top level and can lazily wrap nested objects on demand.
+2. **Array observation**: `Object.defineProperty` cannot easily observe index assignments or array length mutations, forcing Vue 2 to monkey-patch array mutation methods (`push`, `pop`, `splice`, etc.). `Proxy` naturally handles array indices and length changes.
+3. **Browser compatibility**: `Object.defineProperty` is compatible down to IE9, whereas `Proxy` cannot be polyfilled for older engines without ES6 support.
+
+### Data Types and Reference Types (Stack vs. Heap)
+
+JavaScript has primitive types (number, string, boolean, null, undefined, symbol, bigint) and reference types (objects, arrays, functions).
+
+```jsx
+let a1 = {};
+let a2 = {};
+console.log(a1 == a2);  // false
+console.log(a1 === a2); // false
+```
+
+Comparing reference types evaluates references in heap memory rather than structural equality. Primitives are immutable and stored directly in stack frames; reference objects reside in the heap, with their heap memory addresses held in stack pointers.
+
+Use strict equality `===` rather than `==` to prevent unexpected implicit type coercion.
+
+### Deep Clone vs. Shallow Clone
+
+Shallow cloning copies top-level properties. If a property holds a reference to another object, only the reference pointer is copied, meaning both instances share the same nested heap object. In contrast, deep cloning recursively duplicates every level of nested objects into independent heap allocations.
+
+- **Shallow copy techniques**: `Object.assign()`, array `slice()`, array `concat()`, object spread `{...obj}`.
+- **Deep copy techniques**: `structuredClone()`, recursive traversal functions handling circular references, or `JSON.parse(JSON.stringify(obj))` (with known limitations regarding functions, symbols, and dates).
+
+### Currying
+
+Currying is a functional programming technique of transforming a function that takes multiple arguments into a sequence of functions that each take a single argument:
+
+```jsx
+const curry = fn =>
+    judge = (...args) =>
+        args.length >= fn.length
+            ? fn(...args)
+            : (...arg) => judge(...args, ...arg);
+```
+
+Currying improves function composition, code reuse, and parameter pre-configuration.
+
+### Modularity (CommonJS, AMD, CMD, UMD, ES Modules)
+
+**CommonJS:**
+Synchronous module resolution primarily used in Node.js.
+```jsx
+const m = require("./m.js");
+```
+Characteristics:
+- Module code executes within isolated module scope without leaking to global scope.
+- Modules cache exports upon first execution; subsequent requires return cached references.
+- Execution is strictly synchronous.
+
+**AMD (Asynchronous Module Definition):**
+Designed for browsers via RequireJS, prioritizing asynchronous dependency loading before callback execution.
+
+**CMD (Common Module Definition):**
+Championed by SeaJS, promoting dependency declaration near usage and lazy execution.
+
+**UMD (Universal Module Definition):**
+A compatibility wrapper that sniffs the environment (AMD `define`, CommonJS `module.exports`, or browser global `window`).
+
+**ES Modules (ESM):**
+The official ECMAScript language standard (`import` / `export`). Unlike CommonJS, ESM enables static analysis at compile time, powering tree shaking and efficient bundling.
+
+---
+
+## Vue
+
+### Vue 2 vs. Vue 3 Core Design Philosophy
+
+1. **Rewritten Virtual DOM**: Smaller bundle footprint, memory reduction, and optimized patch flags.
+2. **Reactivity upgrade**: Replaced `Object.defineProperty` with `Proxy`, eliminating Vue 2 caveats with dynamic property additions and array indices.
+3. **Fragments**: Components no longer require a single root wrapper element.
+4. **Faster Diff algorithm**: Static hoisting and compile-time patch flagging so the runtime only diffs dynamic bindings.
+5. **Composition API**: Replaces Option API limitations by grouping related business logic into cohesive composable functions, fostering reusability and maintainability.
+
+### Scoped Styles Mechanism in Vue
+
+Vue's compiler (via PostCSS) generates a unique attribute hash (e.g. `data-v-xxxxxx`) for each component. When `<style scoped>` is used, CSS selectors are rewritten to target elements with that unique attribute hash, preventing style leakage outside the component.
+
+### Virtual DOM & DOM Diffing
+
+A Virtual DOM node is a lightweight JavaScript object representing a real DOM element. VDOM allows UI updates to be batched and diffed in memory before applying minimal mutations to the live DOM, minimizing expensive layout reflows and repaints. It also enables cross-platform renderers (Web, Weex, Native, Mini-Programs).
+
+Diffing checks node identity by key and tag:
+- **Component diffing**: If component types differ, replace the entire subtree. If identical, update props and recurse.
+- **Element diffing**: If tags differ, replace element. If identical, update attributes and recursively diff child nodes.
+
+### MVVM, MVC, and MVP Architectures
+
+- **MVC**: View triggers Controller; Controller updates Model; Model informs View. Uni-directional communication flow.
+- **MVP**: Presenter handles all interaction logic between View and Model bidirectionally. View is passive.
+- **MVVM**: Replaces Controller with ViewModel. The ViewModel binds View and Model through two-way or reactive data bindings, keeping DOM and data synchronized automatically.
+
+### Vite: Why Is It So Fast and What Problems Does It Solve?
+
+Traditional bundlers (like Webpack) crawl and bundle the entire dependency graph before serving dev traffic. Vite leverages native browser ES Modules (ESM). In development, the browser requests source files on demand via HTTP imports. Heavy dependency pre-bundling runs via `esbuild` (written in Go, order-of-magnitude faster than JS bundlers).
+
+Key Vite traits:
+1. Instant server start regardless of application size.
+2. Lightning-fast Hot Module Replacement (HMR).
+3. Out-of-the-box support for TypeScript, JSX, and CSS.
+4. Uses Rollup for production builds.
+
+*(Check out my earlier article: [Understanding Vite's Core Features from Scratch (Part 1)](https://www.yinzhuoei.com/index.php/archives/469/))*
+
+### How Vue Implements Dependency Tracking
+
+Vue uses an Observer / Publish-Subscribe pattern:
+When a reactive property is read inside a component template or computed property during rendering, its `getter` fires, registering the current active watcher (the subscriber) into the property's dependency collection (`Dep`). When the property's value changes, its `setter` triggers, notifying all registered subscribers in `Dep` to re-run and patch the DOM.
+
+### Keep-Alive: Principles and Lifecycle Hooks
+
+`<keep-alive>` is a built-in abstract component in Vue that caches inactive component instances without destroying them:
+
+```jsx
+<keep-alive>
+    <App/>
+</keep-alive>
+```
+
+When cached, standard `created` and `mounted` hooks only fire once. To handle re-entry, Vue provides `activated` and `deactivated` lifecycle hooks:
+
+```jsx
+mounted(){
+    // Initial mount only
+},
+activated(){
+    // Triggered whenever the cached component is re-activated
+},
+deactivated(){
+    // Triggered when navigating away from the cached component
+}
+```
+
+Under the hood, abstract components have `abstract: true` in their definition, so Vue skips inserting them directly into the parent-child UI hierarchy. Instead, `keep-alive` stores child component VNodes and DOM instances in an internal cache map (often LRU cache), re-inserting cached DOM directly on subsequent renders.
+
+### nextTick: How It Works and When to Use It
+
+Vue batches reactive DOM updates asynchronously to prevent redundant re-renders when data changes multiple times in the same tick. `nextTick(callback)` schedules a callback to run right after the DOM update queue flushes (leveraging microtasks like `Promise.then` or `MutationObserver`, with fallbacks to `setImmediate` / `setTimeout`).
+
+### Vue Router: Hash vs. History Mode Under the Hood
+
+Single-page applications (SPAs) require client-side routing to update views without full page reloads:
+1. **Hash mode**: Listens to `window.addEventListener('hashchange', callback)`. The portion of the URL after `#` is client-side only and is never sent to the server.
+2. **History mode**: Uses the HTML5 History API (`history.pushState` and `history.replaceState`) along with `window.addEventListener('popstate', callback)`. URLs appear clean without `#`, but require server configuration to fallback all routes to `index.html` to avoid 404s on direct navigation or refresh.
+
+---
+
+## React
+
+*(Admittedly, my primary depth is in Vue, and I've only used React practically with modern Hooks. Here are key foundational questions.)*
+
+- **useState: How to Handle Post-Update Callbacks?** (Use `useEffect` watching the state variable, or wrap state updater logic).
+- **Class Components vs. Function Components**: Class components rely on lifecycle methods and instances; function components with hooks favor functional composition and declarative state.
+- **Is setState Synchronous or Asynchronous?**: In React 18+, automatic batching handles updates asynchronously in batches, regardless of whether they originate inside React handlers, promises, or timeouts.
+- **What Did Hooks Bring to React?**: Simplified stateful logic sharing without HOC or render prop boilerplate, eliminating complex `this` binding issues.
+
+---
+
+## Webpack / Vite / Snowpack / Babel
+
+### A Brief Overview of the Webpack Build Process
+
+1. **Initialization**: Read and merge options from configuration files and CLI arguments.
+2. **Compilation**: Identify the entry point, parse modules into ASTs, identify dependencies recursively, and construct the dependency graph.
+3. **Transformations**: Apply loaders to non-JS assets and invoke plugins across compiler lifecycle hooks.
+4. **Emission**: Assemble chunks into bundles and write assets to the output directory.
+
+### Common Loaders: What Do css-loader and style-loader Do?
+
+- `css-loader`: Interprets `@import` and `url()` inside CSS files and bundles them into JS module exports.
+- `style-loader`: Injects compiled CSS into the DOM via `<style>` tags at runtime.
+
+### Common Webpack Plugins
+
+- `HtmlWebpackPlugin`: Generates HTML files with automatic bundle injection.
+- `HotModuleReplacementPlugin`: Enables runtime hot reloading.
+- `MiniCssExtractPlugin`: Extracts CSS into standalone stylesheet files.
+
+### Differences Between Loaders and Plugins
+
+- **Loaders**: Single-purpose file transformers that convert non-JS files into modules (running during module resolution).
+- **Plugins**: Hook into Webpack's comprehensive lifecycle events (`compiler` and `compilation` tapable hooks) to perform arbitrary tasks (bundle optimization, asset management, environment injection).
+
+### Source Maps Explained Simply
+
+In production, frontend assets are bundled and minified. When runtime errors occur, browser stack traces point to obscure minified code lines. Source maps are mapping files linking compiled/minified code back to original source code positions for seamless debugging.
+- Dev recommended: `cheap-module-eval-source-map`
+- Production recommended: `cheap-module-source-map` (or hidden/nosources variants)
+
+### How to Accelerate Webpack Build Speeds?
+
+*(Refer to my dedicated post: [Webpack: 9 Ways to Boost Build Speeds](https://www.yinzhuoei.com/index.php/archives/148/))*
+
+### How Does Webpack Hot Module Replacement (HMR) Work?
+
+1. Webpack starts in watch mode, compiling incremental diffs into memory.
+2. `webpack-dev-server` maintains a WebSocket connection with the browser client.
+3. When files change, the server pushes notifications with bundle hashes and manifest updates.
+4. The client HMR runtime fetches JSON manifests and updated chunk scripts via JSONP or Ajax.
+5. The HMR runtime replaces updated module exports in memory. If replacement fails or the module doesn't accept HMR, it falls back to a full browser live reload.
+
+---
+
+## CSS
+
+### Web Components
+
+Web Components provide browser-native modular encapsulation built upon:
+1. **Custom Elements**: Defining custom HTML tags.
+2. **Shadow DOM**: Isolated DOM subtrees with scoped styles.
+3. **HTML Templates**: Declarative reusable markup fragments (`<template>` and `<slot>`).
+
+### Ways to Hide Elements from a Page
+
+1. `display: none;` (removed from render tree, triggers reflow)
+2. `visibility: hidden;` (hidden but retains layout space, triggers repaint)
+3. `opacity: 0;` (transparent, retains space and interactions, promotes to GPU layer)
+4. `width: 0; height: 0; overflow: hidden;`
+5. `position: absolute; left: -9999px;`
+6. `transform: scale(0);` or `transform: translate(-9999px);`
+7. Clipping via `clip-path: circle(0);`
+
+### Reflow and Repaint: How to Optimize Rendering Overhead
+
+- **Reflow**: Occurs when layout dimensions, geometry, or position change, forcing recalculation of the render tree geometry.
+- **Repaint**: Occurs when visual styles (colors, background, visibility) change without affecting geometry.
+- *Reflow always triggers repaint; repaint does not necessarily trigger reflow.*
+
+**Does translate in transform cause reflow?**
+No. Transformations handled via `transform` run on the GPU compositor thread, generating independent compositor layers without recalculating layout on the main thread.
+
+### Modifying Styles Inside Scoped Components (Deep Selectors)
+
+- `>>>` (native deep selector)
+- `/deep/` (older preprocessor syntax)
+- `::v-deep` (modern Vue deep combinator)
+
+### Reading HTML Attributes in CSS
+
+```css
+content: attr(data-title); /* Used inside pseudo-elements like ::after or ::before */
+```
+
+### Block Formatting Context (BFC)
+
+A BFC is an isolated layout environment where internal child elements do not affect external siblings.
+**Triggers:**
+- Root element (`<html>`)
+- `overflow` values other than `visible` (`auto`, `hidden`, `scroll`)
+- `position: absolute` or `position: fixed`
+- `display: inline-block`, `display: flex`, `display: grid`
+- `float` (left or right)
+
+**Use cases:**
+- Preventing margin collapse
+- Containing internal floating elements
+- Preventing text from wrapping around adjacent floats
+
+### Clearing Floats
+
+1. Modern standard: Clearfix pseudo-element:
+```css
+.clearfix::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+```
+2. Triggering BFC on parent (e.g., `overflow: hidden;`)
+
+---
+
+## HTML
+
+### Progressive Web Apps (PWA)
+
+PWAs leverage modern web capabilities to deliver app-like user experiences:
+1. **Service Workers**: Rich offline caching, proxying requests, and background syncing.
+2. **Web App Manifest**: Enabling "Add to Home Screen" with custom icons, theme colors, and standalone splash displays.
+3. **Push Notifications**: Re-engaging users through system notification APIs.
+
+### Replaced Elements vs. Non-Replaced Elements
+
+- **Replaced elements**: Elements whose visual appearance and dimensions are dictated by an external resource rather than CSS content (e.g., `<img>`, `<input>`, `<textarea>`, `<video>`). They are inline elements but can have explicit width and height.
+- **Non-replaced elements**: Elements whose content is rendered directly by the browser from HTML markup (e.g., `<div>`, `<span>`, `<p>`).
+
+### Single Page Applications (SPA) vs. Multi-Page Applications (MPA)
+
+- **SPA**: A single HTML file where route transitions are handled client-side via JavaScript without full reloads. Fast transitions and app-like feel, but higher initial load and historically weaker default SEO.
+- **MPA**: Distinct HTML pages rendered per navigation request. Superior default SEO and fast initial page loads, but full page refresh overhead on every click.
+
+### Server-Side Rendering (SSR) vs. Client-Side Rendering (CSR)
+
+- **CSR**: The server delivers a bare-bones HTML shell. The browser downloads JS bundles, executes them, calls APIs, and builds the DOM client-side. Can suffer from longer First Contentful Paint (FCP) and poor SEO crawlers.
+- **SSR**: The Node server runs the component code, pre-renders the complete HTML markup with initial state, and streams it to the client. Faster first paint and excellent SEO, but increases server computational load.
+- **Isomorphic / Universal Rendering**: Combines both: initial request renders on the server, followed by client-side hydration for subsequent interactive navigation.
+
+---
+
+## Browsers and Engineering
+
+### What Happens When You Enter a URL in the Browser Address Bar?
+
+1. **URL Parsing**: Protocol, hostname, port, and query params are parsed.
+2. **Browser Cache Check**: Validates HTTP cache (service worker, memory cache, disk cache).
+3. **DNS Lookup**: Recursive resolution (browser cache -> OS hosts -> local router -> ISP DNS -> root/authoritative nameservers).
+4. **TCP Handshake**: Three-way handshake establishes a TCP connection (plus TLS negotiation for HTTPS).
+5. **HTTP Request**: Browser sends HTTP request headers and payload.
+6. **Server Response**: Server processes request and returns status code, headers, and body.
+7. **DOM Tree Construction**: Browser parses HTML tokens into the DOM tree.
+8. **CSSOM Tree Construction**: Browser parses stylesheets into the CSSOM tree.
+9. **Script Execution**: Encountered scripts execute synchronously (unless deferred or async).
+10. **Render Tree Generation**: DOM and CSSOM combine into the render tree (skipping hidden elements like `<head>` or `display: none`).
+11. **Layout & Paint**: Elements are positioned (geometry calculation), painted into bitmap layers, and composited onto the screen via GPU.

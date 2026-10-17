@@ -15,7 +15,7 @@ pnpm deploy    # build + wrangler deploy
 
 ## Content
 
-Posts live in `src/content/blog/<lang>/`. A post is a `.md` or `.mdx` file with frontmatter validated by the schema in `src/content.config.ts`:
+Posts live in `src/content/blog/<post>/` — one folder per post, one file per language (`en.md`, `zh.md`). The folder name is the URL slug, so a post's translations always sit side by side.
 
 ```yaml
 ---
@@ -34,14 +34,14 @@ featured: true              # pinned on the home page
 
 ### Add a Markdown post
 
-Create `src/content/blog/en/my-post.md` with the frontmatter above. The route appears automatically at `/blog/my-post`.
+Create `src/content/blog/my-post/en.md` with the frontmatter above. The route appears automatically at `/blog/my-post`.
 
 ### Add an MDX post
 
-Create `src/content/blog/en/my-post.mdx`. Import Astro components at the top:
+Create `src/content/blog/my-post/en.mdx`. Import Astro components at the top:
 
 ```mdx
-import Callout from '../../../components/mdx/Callout.astro';
+import Callout from '../../../../components/mdx/Callout.astro';
 
 <Callout type="tip">Works without any client framework.</Callout>
 ```
@@ -50,7 +50,7 @@ Reusable MDX components live in `src/components/mdx/`.
 
 ### Add a translation
 
-Create the same post in the other language folder with the **same `translationKey`**. The language switcher on the post page will link the two versions automatically. Posts without a translation simply don't show the link — nothing breaks.
+Create `src/content/blog/my-post/zh.md` with the **same `translationKey`**. The language switcher on the post page will link the two versions automatically. Posts without a translation simply don't show the link — nothing breaks.
 
 ## Site configuration
 
@@ -85,4 +85,4 @@ Every push to `main` now builds and deploys automatically (`.github/workflows/de
 
 ## Importing existing Markdown
 
-Drop `.md` files into `src/content/blog/<lang>/`, add the required frontmatter (`title`, `description`, `date`, `lang`, `translationKey`), and commit. Drafts (`draft: true`) render in dev but are excluded from production.
+Drop `en.md` into a new folder under `src/content/blog/`, add the required frontmatter (`title`, `description`, `date`, `lang`, `translationKey`), and commit. The folder name becomes the URL slug. Drafts (`draft: true`) render in dev but are excluded from production.
