@@ -1,0 +1,897 @@
+---
+import type { Page } from 'astro';
+import type { Post } from '../../lib/posts';
+import { postSlug, minutesRead, postCategories, postViews, formatViews } from '../../lib/posts';
+import { localePath, useTranslations } from '../../i18n/utils';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostRow from '../PostRow.astro';
+import Icon from '../Icon.astro';
+import { site } from '../../config';
+
+interface Props {
+  lang: Lang;
+  page?: Page<Post>;
+  posts?: Post[];
+  allPosts?: Post[];
+}
+
+const { lang, page, posts: rawPosts, allPosts: rawAllPosts } = Astro.props;
+const t = useTranslations(lang);
+
+// Active page posts (for static initial render)
+const currentPosts = page ? page.data : (rawPosts ?? []);
+// All posts across the whole blog (for global category counts and instant search)
+const allPosts = rawAllPosts ?? rawPosts ?? (page ? page.data : []);
+
+// Extract unique categories & global post counts
+const categoryCounts = new Map<string, number>();
+for (const p of allPosts) {
+  const cats = postCategories(p);
+  for (const c of cats) {
+    categoryCounts.set(c, (categoryCounts.get(c) ?? 0) + 1);
+  }
+}
+const categories = [...categoryCounts.entries()]
+  .map(([name, count]) => ({ name, count }))
+  .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+
+// Group current page posts by year, descending
+const years = new Map<number, Post[]>();
+for (const p of currentPosts) {
+  const y = p.data.date.getFullYear();
+  years.set(y, [...(years.get(y) ?? []), p]);
+}
+const groups = [...years.entries()].sort((a, b) => b[0] - a[0]);
+
+const basePath = lang === 'zh' ? '/zh/blog' : '/blog';
+const path = page && page.currentPage > 1 ? `${basePath}/${page.currentPage}` : basePath;
+
+// Pagination range generator
+function getPaginationRange(current: number, total: number): (number | '...')[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total];
+  }
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+  }
+  return [1, '...', current - 1, current, current + 1, '...', total];
+}
+
+const pageNumbers = page ? getPaginationRange(page.currentPage, page.lastPage) : [];
+
+function getPageUrl(p: number) {
+  return p === 1 ? basePath : `${basePath}/${p}`;
+}
+
+// Minimal catalog data for instant client-side searching
+const catalogData = allPosts.map((p) => ({
+  id: p.id,
+  slug: postSlug(p),
+  title: p.data.title,
+  desc: p.data.description,
+  dateFormatted: p.data.date.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+  }),
+  year: p.data.date.getFullYear(),
+  cats: postCategories(p),
+  read: minutesRead(p),
+  views: formatViews(postViews(p)),
+  href: localePath(lang, `/blog/${postSlug(p)}`),
+}));
+
+const viewsLabel = t('blog.views');
+const minReadLabel = t('blog.minRead');
+---
+<BaseLayout
+  title={t('blog.title')}
+  description={site.description[lang]}
+  lang={lang}
+  path={path}
+  alternates={{ en: '/blog', zh: '/zh/blog' }}
+>
+  <div class="page" data-blog-container>
+    <!-- ─── Header: Editorial Title + Minimal Search Input ─── -->
+    <header class="page-head reveal">
+      <div class="head-info">
+        <h1 class="page-title">{t('blog.title')}</h1>
+        <p class="page-desc">{t('blog.description')}</p>
+      </div>
+      <div class="head-search">
+        <div class="search-field">
+          <Icon name="search" size={15} class="search-field-icon" />
+          <input
+            type="search"
+            class="search-field-input"
+            data-blog-search
+            placeholder={t('blog.search.placeholder')}
+            autocomplete="off"
+            spellcheck="false"
+            aria-label={t('blog.search')}
+          />
+          <button
+            type="button"
+            class="search-clear-btn"
+            data-search-clear
+            hidden
+            aria-label={t('blog.search.clear')}
+          >
+            <Icon name="x" size={12} />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ─── Category Filter Chips Bar ─── -->
+    {categories.length > 0 && (
+      <div class="filter-bar reveal" data-category-filter>
+        <div class="filter-chips" role="group" aria-label={t('blog.filter.categories')}>
+          <button
+            type="button"
+            class="chip active"
+            data-cat="all"
+            aria-pressed="true"
+          >
+            <span>{t('blog.filter.all')}</span>
+            <span class="chip-count">{allPosts.length}</span>
+          </button>
+          {categories.map(({ name, count }) => (
+            <button
+              type="button"
+              class="chip"
+              data-cat={name}
+              aria-pressed="false"
+            >
+              <span class="chip-check" aria-hidden="true">
+                <Icon name="check" size={11} />
+              </span>
+              <span>{name}</span>
+              <span class="chip-count">{count}</span>
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          class="btn-reset-filters"
+          data-filter-clear
+          hidden
+          title={t('blog.filter.clear')}
+        >
+          <Icon name="rotate-ccw" size={12} />
+          <span>{t('blog.filter.clear')}</span>
+        </button>
+      </div>
+    )}
+
+    <!-- ─── Filter & Search Active Header ─── -->
+    <div class="results-header" data-results-header hidden>
+      <span class="results-count" data-results-count></span>
+      <button type="button" class="btn-clear-all" data-reset-all>
+        <Icon name="x" size={12} />
+        <span>{t('blog.filter.clear')}</span>
+      </button>
+    </div>
+
+    <!-- ─── Dynamic Live Search & Filter Results View ─── -->
+    <div class="search-results-view" data-search-results-view hidden>
+      <div class="results-groups" data-results-groups></div>
+
+      <div class="search-empty-state" data-search-empty-state hidden>
+        <div class="empty-icon-wrap">
+          <Icon name="search" size={22} />
+        </div>
+        <p class="empty-title">{t('blog.search.empty')}</p>
+        <p class="empty-hint">
+          {lang === 'zh'
+            ? '未找到与当前筛选条件匹配的文章，可尝试更换关键词或进行全局正文检索'
+            : 'No posts matched your criteria. Try different terms or search full-text.'}
+        </p>
+        <button type="button" class="btn-deep-search" data-open-pagefind>
+          <Icon name="search" size={14} />
+          <span>{t('blog.search.deep')}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── Static SSG List View (Shown when not filtering) ─── -->
+    <div class="static-list-view" data-static-list-view>
+      {groups.length === 0 && <p class="empty">{t('blog.empty')}</p>}
+
+      {groups.map(([year, list]) => (
+        <section class="year-group">
+          <h2 class="year-label reveal">{year}</h2>
+          <div class="year-list">
+            {list.map((post) => <PostRow post={post} lang={lang} />)}
+          </div>
+        </section>
+      ))}\n\n      <!-- ─── Native Astro Route Pagination Bar ─── -->
+      {page && page.lastPage > 1 && (
+        <nav class="pagination reveal" aria-label="Pagination">
+          {page.url.prev ? (
+            <a href={page.url.prev} class="page-arrow" rel="prev">
+              <Icon name="arrow-left" size={15} />
+              <span class="arrow-text">{t('blog.pagination.prev')}</span>
+            </a>
+          ) : (
+            <span class="page-arrow disabled" aria-disabled="true">
+              <Icon name="arrow-left" size={15} />
+              <span class="arrow-text">{t('blog.pagination.prev')}</span>
+            </span>
+          )}
+
+          <div class="page-numbers">
+            {pageNumbers.map((p) =>
+              p === '...' ? (
+                <span class="page-ellipsis" aria-hidden="true">…</span>
+              ) : (
+                <a
+                  href={getPageUrl(p)}
+                  class:list={['page-num', { active: p === page.currentPage }]}
+                  aria-current={p === page.currentPage ? 'page' : undefined}
+                >
+                  {p}
+                </a>
+              )
+            )}
+          </div>
+
+          {page.url.next ? (
+            <a href={page.url.next} class="page-arrow" rel="next">
+              <span class="arrow-text">{t('blog.pagination.next')}</span>
+              <Icon name="arrow-right" size={15} />
+            </a>
+          ) : (
+            <span class="page-arrow disabled" aria-disabled="true">
+              <span class="arrow-text">{t('blog.pagination.next')}</span>
+              <Icon name="arrow-right" size={15} />
+            </span>
+          )}
+        </nav>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<!-- JSON-serialized catalog data for instant client-side searching -->
+<script
+  id="blog-catalog-data"
+  type="application/json"
+  set:html={JSON.stringify(catalogData)}
+  data-views-label={viewsLabel}
+  data-minread-label={minReadLabel}
+/>
+
+<script>
+  function initBlogInteractions() {
+    const container = document.querySelector<HTMLElement>('[data-blog-container]');
+    if (!container || container.dataset.bound) return;
+    container.dataset.bound = '1';
+
+    const scriptTag = document.getElementById('blog-catalog-data');
+    if (!scriptTag) return;
+    const catalog: Array<{
+      id: string;
+      slug: string;
+      title: string;
+      desc: string;
+      dateFormatted: string;
+      year: number;
+      cats: string[];
+      read: number;
+      views: string;
+      href: string;
+    }> = JSON.parse(scriptTag.textContent || '[]');
+
+    const viewsLabel = scriptTag.dataset.viewsLabel || '次阅读';
+    const minReadLabel = scriptTag.dataset.minreadLabel || '分钟读完';
+
+    const searchInput = container.querySelector<HTMLInputElement>('[data-blog-search]');
+    const searchClear = container.querySelector<HTMLButtonElement>('[data-search-clear]');
+    const filterResetBtn = container.querySelector<HTMLButtonElement>('[data-filter-clear]');
+    const resultsHeader = container.querySelector<HTMLElement>('[data-results-header]');
+    const resultsCount = container.querySelector<HTMLElement>('[data-results-count]');
+    const resetAllBtn = container.querySelector<HTMLButtonElement>('[data-reset-all]');
+    const chips = container.querySelectorAll<HTMLButtonElement>('.chip');
+
+    const staticView = container.querySelector<HTMLElement>('[data-static-list-view]');
+    const resultsView = container.querySelector<HTMLElement>('[data-search-results-view]');
+    const resultsGroups = container.querySelector<HTMLElement>('[data-results-groups]');
+    const emptyState = container.querySelector<HTMLElement>('[data-search-empty-state]');
+    const deepSearchBtn = container.querySelector<HTMLButtonElement>('[data-open-pagefind]');
+
+    const selectedCats = new Set<string>();
+
+    function update() {
+      const query = (searchInput?.value ?? '').trim().toLowerCase();
+      const hasCats = selectedCats.size > 0;
+      const isFiltering = query.length > 0 || hasCats;
+
+      // Update Clear buttons
+      if (searchClear) searchClear.hidden = query.length === 0;
+      if (filterResetBtn) filterResetBtn.hidden = !isFiltering;
+      if (resultsHeader) resultsHeader.hidden = !isFiltering;
+
+      // Update Chip states
+      chips.forEach((chip) => {
+        const cat = chip.dataset.cat;
+        if (cat === 'all') {
+          chip.classList.toggle('active', !hasCats);
+          chip.setAttribute('aria-pressed', String(!hasCats));
+        } else if (cat) {
+          const active = selectedCats.has(cat);
+          chip.classList.toggle('active', active);
+          chip.setAttribute('aria-pressed', String(active));
+        }
+      });
+
+      // Switch between Static Paginated View and Dynamic Results View
+      if (!isFiltering) {
+        if (staticView) staticView.hidden = false;
+        if (resultsView) resultsView.hidden = true;
+        return;
+      }
+
+      if (staticView) staticView.hidden = true;
+      if (resultsView) resultsView.hidden = false;
+
+      // Filter catalog
+      const matches = catalog.filter((item) => {
+        if (hasCats && !item.cats.some((c) => selectedCats.has(c))) {
+          return false;
+        }
+        if (query.length > 0) {
+          const matchTitle = item.title.toLowerCase().includes(query);
+          const matchDesc = item.desc ? item.desc.toLowerCase().includes(query) : false;
+          const matchCats = item.cats.some((c) => c.toLowerCase().includes(query));
+          return matchTitle || matchDesc || matchCats;
+        }
+        return true;
+      });
+
+      if (resultsCount) {
+        const lang = document.documentElement.lang || 'zh';
+        const label = lang === 'en' ? 'posts found' : '篇匹配文章';
+        resultsCount.textContent = `${matches.length} ${label}`;
+      }
+
+      if (emptyState) {
+        emptyState.hidden = matches.length > 0;
+      }
+
+      if (!resultsGroups) return;
+      resultsGroups.innerHTML = '';
+
+      if (matches.length === 0) return;
+
+      // Group matches by year (descending)
+      const yearMap = new Map<number, typeof matches>();
+      for (const item of matches) {
+        const arr = yearMap.get(item.year) ?? [];
+        arr.push(item);
+        yearMap.set(item.year, arr);
+      }
+      const sortedYears = [...yearMap.entries()].sort((a, b) => b[0] - a[0]);
+
+      function highlight(text: string, q: string) {
+        if (!q) return escapeHtml(text);
+        const re = new RegExp(`(${escapeRegExp(q)})`, 'gi');
+        return escapeHtml(text).replace(re, '<mark class="hl">$1</mark>');
+      }
+
+      function escapeHtml(str: string) {
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function escapeRegExp(str: string) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      const frag = document.createDocumentFragment();
+
+      for (const [year, items] of sortedYears) {
+        const section = document.createElement('section');
+        section.className = 'year-group';
+
+        const h2 = document.createElement('h2');
+        h2.className = 'year-label';
+        h2.textContent = String(year);
+        section.appendChild(h2);
+
+        const listDiv = document.createElement('div');
+        listDiv.className = 'year-list';
+
+        for (const item of items) {
+          const row = document.createElement('a');
+          row.href = item.href;
+          row.className = 'post-row';
+
+          const descHtml = item.desc ? `<span class="row-desc">${highlight(item.desc, query)}</span>` : '';
+
+          row.innerHTML = `
+            <span class="row-date">${escapeHtml(item.dateFormatted)}</span>
+            <span class="row-main">
+              <span class="row-title">${highlight(item.title, query)}</span>
+              ${descHtml}
+            </span>
+            <span class="row-meta">
+              <span class="row-views" title="${escapeHtml(item.views)} ${escapeHtml(viewsLabel)}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                <span>${escapeHtml(item.views)}</span>
+              </span>
+              <span class="row-read">${item.read} ${escapeHtml(minReadLabel)}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="row-arrow" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </span>
+          `;
+          listDiv.appendChild(row);
+        }
+
+        section.appendChild(listDiv);
+        frag.appendChild(section);
+      }
+
+      resultsGroups.appendChild(frag);
+    }
+
+    // Input handlers
+    searchInput?.addEventListener('input', update);
+
+    searchClear?.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      update();
+    });
+
+    // Keyboard shortcut: '/' to focus search, 'Escape' to clear/blur
+    document.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement | null;
+      if (e.key === '/' && target && !['INPUT', 'TEXTAREA'].includes(target.tagName)) {
+        e.preventDefault();
+        searchInput?.focus();
+      }
+    });
+
+    searchInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (searchInput.value) {
+          searchInput.value = '';
+          update();
+        } else {
+          searchInput.blur();
+        }
+      }
+    });
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const cat = chip.dataset.cat;
+        if (!cat) return;
+        if (cat === 'all') {
+          selectedCats.clear();
+        } else {
+          if (selectedCats.has(cat)) {
+            selectedCats.delete(cat);
+          } else {
+            selectedCats.add(cat);
+          }
+        }
+        update();
+      });
+    });
+
+    filterResetBtn?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      selectedCats.clear();
+      update();
+    });
+
+    resetAllBtn?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      selectedCats.clear();
+      update();
+    });
+
+    // Deep search trigger: connects with global Pagefind Search dialog
+    deepSearchBtn?.addEventListener('click', () => {
+      const globalSearchBtn = document.querySelector<HTMLButtonElement>('[data-search-open]');
+      globalSearchBtn?.click();
+    });
+  }
+
+  initBlogInteractions();
+  document.addEventListener('astro:page-load', initBlogInteractions);
+</script>
+
+<style>
+  .page {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 4.5rem var(--gutter) 6rem;
+  }
+
+  /* ─── Header: Editorial Title + Minimal Search Input ─── */
+  .page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .head-info {
+    max-width: var(--measure);
+  }
+  .page-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .page-desc {
+    margin-top: 0.75rem;
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+  }
+  .head-search {
+    flex-shrink: 0;
+    margin-bottom: 0.15rem;
+  }
+  .search-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 16rem;
+    transition: width 0.25s var(--ease-out);
+  }
+  .search-field:focus-within {
+    width: 19.5rem;
+  }
+  .search-field-icon {
+    position: absolute;
+    left: 0.85rem;
+    color: var(--ink-3);
+    pointer-events: none;
+    transition: color 0.2s ease;
+  }
+  .search-field:focus-within .search-field-icon {
+    color: var(--accent);
+  }
+  .search-field-input {
+    width: 100%;
+    height: 2.375rem;
+    padding: 0 2.2rem 0 2.35rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-subtle);
+    color: var(--ink);
+    font-size: 0.8125rem;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .search-field-input:focus {
+    background: var(--bg);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 12%, transparent);
+  }
+  .search-field-input::placeholder {
+    color: var(--ink-3);
+    font-size: 0.8125rem;
+  }
+  .search-field-input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+  .search-clear-btn {
+    position: absolute;
+    right: 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: none;
+    background: var(--line);
+    color: var(--ink-3);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .search-clear-btn:hover {
+    color: var(--ink);
+    background: var(--line-strong);
+  }
+
+  /* ─── Category Filter Chips ─── */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2.25rem;
+  }
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    height: 1.75rem;
+    padding: 0 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink-2);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+  }
+  .chip:hover {
+    background: var(--bg-subtle);
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+  .chip.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .chip-check {
+    display: none;
+    margin-left: -0.1rem;
+    color: var(--accent);
+  }
+  .chip.active:not([data-cat="all"]) .chip-check {
+    display: inline-flex;
+  }
+  .chip-count {
+    font-size: 0.6875rem;
+    padding: 0.05rem 0.35rem;
+    border-radius: 999px;
+    background: var(--bg-subtle);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    transition: all 0.18s ease;
+  }
+  .chip.active .chip-count {
+    background: color-mix(in oklch, var(--accent) 18%, transparent);
+    color: var(--accent);
+  }
+  .btn-reset-filters {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: none;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+    transition: background-color 0.18s ease;
+  }
+  .btn-reset-filters:hover {
+    background: var(--accent-soft);
+  }
+
+  /* ─── Active Filter Status Header ─── */
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0 1rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+  }
+  .results-count {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .btn-clear-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+  }
+  .btn-clear-all:hover {
+    background: var(--accent-soft);
+  }
+
+  /* ─── Search Results View ─── */
+  .search-results-view {
+    padding-bottom: 3rem;
+  }
+  :global(.hl) {
+    background: color-mix(in oklch, var(--accent) 15%, transparent);
+    color: var(--accent);
+    font-weight: 600;
+    padding: 0.05rem 0.2rem;
+    border-radius: 3px;
+  }
+
+  /* Empty Search State */
+  .search-empty-state {
+    padding: 4.5rem 1rem;
+    text-align: center;
+  }
+  .empty-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    background: var(--bg-subtle);
+    color: var(--ink-3);
+    margin-bottom: 1.1rem;
+  }
+  .empty-title {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.45rem;
+  }
+  .empty-hint {
+    font-size: 0.875rem;
+    color: var(--ink-3);
+    max-width: 28rem;
+    margin: 0 auto 1.5rem;
+    line-height: 1.5;
+  }
+  .btn-deep-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.15rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    transition: all 0.2s ease;
+  }
+  .btn-deep-search:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  /* ─── Static Year Groups ─── */
+  .empty { color: var(--ink-3); }
+  .year-group {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 1.5rem;
+    padding: 2rem 0 2.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .year-label {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--ink-3);
+    padding-top: 0.9rem;
+  }
+  .year-list { border-top: 1px solid transparent; }
+
+  /* ─── Astro Route Pagination ─── */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .page-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink-2);
+    padding: 0.45rem 0.85rem;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    transition: all 0.2s ease;
+  }
+  .page-arrow:not(.disabled):hover {
+    color: var(--ink);
+    border-color: var(--line-strong);
+    background: var(--bg-subtle);
+  }
+  .page-arrow.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    border-color: transparent;
+  }
+  .page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .page-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.4rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .page-num:hover {
+    color: var(--ink);
+    background: var(--bg-subtle);
+  }
+  .page-num.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .page-ellipsis {
+    color: var(--ink-3);
+    padding: 0 0.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .page { padding-top: 3rem; }
+    .page-head {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .head-search {
+      width: 100%;
+      margin-bottom: 0;
+    }
+    .search-field,
+    .search-field:focus-within {
+      width: 100%;
+    }
+    .year-group { grid-template-columns: 1fr; gap: 0.25rem; }
+    .year-label { padding-top: 0; }
+    .arrow-text { display: none; }
+    .pagination { justify-content: center; gap: 0.75rem; }
+  }
+</style>

@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "seho-blog",
+  "compatibility_date": "2026-10-13",
+  "assets": {
+    "directory": "./dist",
+    // Serve dist/404.html (built from src/pages/404.astro) with a 404 status.
+    "not_found_handling": "404-page"
+  }
+}

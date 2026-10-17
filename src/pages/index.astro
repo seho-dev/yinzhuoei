@@ -1,0 +1,6 @@
+---
+import Home from '../components/pages/Home.astro';
+import { getPosts } from '../lib/posts';
+const posts = await getPosts('en');
+---
+<Home lang="en" posts={posts} />

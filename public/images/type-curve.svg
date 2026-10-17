@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300">
+  <rect width="720" height="300" rx="8" fill="#f3f2ee"/>
+  <g stroke="#d4d1c8" stroke-width="1">
+    <line x1="60" y1="40" x2="60" y2="250"/>
+    <line x1="60" y1="250" x2="680" y2="250"/>
+  </g>
+  <g stroke="#e6e4de" stroke-width="1">
+    <line x1="60" y1="180" x2="680" y2="180"/>
+    <line x1="60" y1="110" x2="680" y2="110"/>
+  </g>
+  <path d="M60 236 C 240 232, 420 200, 680 96" fill="none" stroke="#b3401f" stroke-width="2.5" stroke-linecap="round"/>
+  <g fill="#57544d" font-family="ui-monospace, Menlo, monospace" font-size="12">
+    <text x="60" y="272">320px</text>
+    <text x="330" y="272">768px</text>
+    <text x="630" y="272">1440px</text>
+    <text x="16" y="254" transform="rotate(-90 16 254)"></text>
+  </g>
+  <g fill="#8a867c" font-family="Georgia, serif" font-style="italic" font-size="13">
+    <text x="60" y="30">font-size</text>
+    <text x="588" y="86">clamp()</text>
+  </g>
+</svg>

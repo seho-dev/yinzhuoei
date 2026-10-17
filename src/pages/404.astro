@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getLangFromUrl, useTranslations, localePath } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+<BaseLayout title={t('404.title')} description={t('404.body')} lang={lang} path="/404">
+  <div class="nf">
+    <p class="nf-code reveal">404</p>
+    <h1 class="nf-title reveal" style="--reveal-delay:80ms">{t('404.title')}</h1>
+    <p class="nf-body reveal" style="--reveal-delay:160ms">{t('404.body')}</p>
+    <a class="nf-link reveal" style="--reveal-delay:240ms" href={localePath(lang, '/')}>
+      {t('404.back')} →
+    </a>
+  </div>
+</BaseLayout>
+
+<style>
+  .nf {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: clamp(6rem, 18vh, 12rem) var(--gutter);
+  }
+  .nf-code {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(4rem, 12vw, 8rem);
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+  }
+  .nf-title {
+    margin-top: 1rem;
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+  .nf-body { margin-top: 0.75rem; color: var(--ink-2); max-width: 32rem; }
+  .nf-link {
+    display: inline-block;
+    margin-top: 2rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--accent);
+    border-bottom: 1px solid color-mix(in oklch, var(--accent) 40%, transparent);
+    padding-bottom: 2px;
+  }
+  .nf-link:hover { border-color: var(--accent); }
+</style>

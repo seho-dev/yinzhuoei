@@ -1,0 +1,81 @@
+---
+import { profile, site } from '../config';
+import { localePath, useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-row">
+      <nav class="footer-nav" aria-label="Footer">
+        <a href={localePath(lang, '/')}>{t('nav.home')}</a>
+        <a href={localePath(lang, '/blog')}>{t('nav.blog')}</a>
+        <a href={lang === 'zh' ? '/zh/rss.xml' : '/rss.xml'}>RSS</a>
+      </nav>
+      <div class="footer-social">
+        <a href={profile.github} target="_blank" rel="me noopener" aria-label="GitHub">
+          <Icon name="github" size={17} />
+        </a>
+        <a href={profile.x} target="_blank" rel="me noopener" aria-label="X">
+          <Icon name="x-logo" size={15} />
+        </a>
+      </div>
+    </div>
+    <div class="footer-meta">
+      <span>© {year} {site.name}. {t('footer.rights')}</span>
+      <span class="footer-note">{t('footer.madeWith')}</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+  }
+  .footer-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 2.5rem var(--gutter) 2rem;
+  }
+  .footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .footer-nav {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+  }
+  .footer-nav a { transition: color 0.2s ease; }
+  .footer-nav a:hover { color: var(--accent); }
+  .footer-social { display: flex; gap: 0.25rem; }
+  .footer-social a {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 6px;
+    color: var(--ink-2);
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s var(--ease-out);
+  }
+  .footer-social a:hover { color: var(--ink); background: var(--bg-subtle); transform: translateY(-1px); }
+  .footer-meta {
+    margin-top: 1.75rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+    color: var(--ink-3);
+  }
+</style>

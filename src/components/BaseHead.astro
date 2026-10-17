@@ -1,0 +1,78 @@
+---
+import { site } from '../config';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  title: string;
+  description: string;
+  lang: Lang;
+  /** Canonical path (root-relative, includes locale prefix when any). */
+  path: string;
+  ogType?: 'website' | 'article' | undefined;
+  publishedTime?: Date | undefined;
+  modifiedTime?: Date | undefined;
+  /** Paths of this page in each locale, for hreflang. */
+  alternates?: { en: string; zh: string } | undefined;
+}
+
+const {
+  title,
+  description,
+  lang,
+  path,
+  ogType = 'website',
+  publishedTime,
+  modifiedTime,
+  alternates,
+} = Astro.props;
+
+const canonical = new URL(path, site.url);
+const fullTitle = path === '/' || path === '/zh' ? title : `${title} — ${site.name}`;
+const ogImage = new URL('/og.png', site.url);
+---
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title="RSS" href={lang === 'zh' ? '/zh/rss.xml' : '/rss.xml'} />
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="generator" content={Astro.generator} />
+
+{alternates && (
+  <>
+    <link rel="alternate" hreflang="en" href={new URL(alternates.en, site.url)} />
+    <link rel="alternate" hreflang="zh-CN" href={new URL(alternates.zh, site.url)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, site.url)} />
+  </>
+)}
+
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={canonical} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_US'} />
+{publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+{modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content={site.name} />
+<meta name="twitter:creator" content="@seho20001123" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<script is:inline>
+  // Apply theme before first paint to avoid FOUC.
+  (function () {
+    const stored = localStorage.getItem('theme');
+    const dark = stored
+      ? stored === 'dark'
+      : matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.classList.toggle('dark', dark);
+  })();
+</script>

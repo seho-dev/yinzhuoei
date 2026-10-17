@@ -1,0 +1,415 @@
+---
+interface Props {
+  caption: string;
+}
+const { caption } = Astro.props;
+---
+
+<figure class="scene reveal" style="--reveal-delay: 300ms">
+  <svg
+    viewBox="0 0 600 410"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label={caption}
+  >
+    <defs>
+      <radialGradient id="afternoon-light">
+        <stop stop-color="var(--sc-sun)" stop-opacity="0.17" />
+        <stop offset="1" stop-color="var(--sc-sun)" stop-opacity="0" />
+      </radialGradient>
+      <linearGradient id="meadow-wash" x1="0" y1="0" x2="0" y2="1">
+        <stop stop-color="var(--sc-meadow)" stop-opacity="0.16" />
+        <stop offset="1" stop-color="var(--sc-meadow)" stop-opacity="0.03" />
+      </linearGradient>
+      <linearGradient id="path-fade">
+        <stop stop-color="var(--sc-meadow)" stop-opacity="0" />
+        <stop offset="0.2" stop-color="var(--sc-meadow)" stop-opacity="0.55" />
+        <stop offset="0.8" stop-color="var(--sc-meadow)" stop-opacity="0.55" />
+        <stop offset="1" stop-color="var(--sc-meadow)" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+
+    <g class="landscape">
+      <circle cx="483" cy="96" r="76" fill="url(#afternoon-light)" />
+      <circle cx="483" cy="96" r="25" class="sun" />
+      <path class="sun-rays" d="M483 59 V51 M483 133 V141 M446 96 H438 M520 96 H528 M457 70 L451 64 M509 122 L515 128 M457 122 L451 128 M509 70 L515 64" />
+      <path class="cloud cloud-one" d="M65 104 H132 M73 104 C69 94 80 86 89 91 C94 75 117 77 120 93 C128 89 137 95 134 104" />
+      <path class="cloud cloud-two" d="M351 67 H402 M356 67 C352 59 361 52 369 56 C373 43 391 44 394 57 C401 55 407 61 404 67" />
+      <path class="birds" d="M366 109 Q371 104 376 108 Q381 104 386 109 M389 96 Q393 92 397 96 Q401 92 405 96" />
+      <path class="meadow" d="M37 354 C53 329 64 320 83 327 C98 301 125 306 139 327 C160 315 177 331 194 354 Z" />
+      <path class="meadow" d="M345 354 C361 333 379 328 396 336 C414 310 441 316 454 334 C471 322 489 329 501 339 C524 315 550 329 566 354 Z" />
+      <path class="hillside" d="M47 345 Q99 324 147 343 M374 346 Q409 331 438 343 M509 345 Q533 333 553 344" />
+      <ellipse class="ground-shadow" cx="211" cy="357" rx="49" ry="4" />
+      <ellipse class="ground-shadow" cx="296" cy="357" rx="41" ry="3.5" />
+      <ellipse class="ground-shadow" cx="448" cy="357" rx="59" ry="4" />
+      <path class="ground-line" d="M27 357 H574" />
+      <path class="path-marks" d="M112 366 H136 M239 369 H261 M356 364 H380 M496 367 H525" />
+      <g class="wildflowers">
+        <path d="M69 357 Q70 336 64 322 M68 347 Q58 344 55 337 M70 342 Q81 337 83 329 M90 357 Q87 349 91 342" />
+        <path d="M544 357 Q540 337 546 326 M542 345 Q532 343 529 336 M544 339 Q552 337 557 331 M351 357 Q348 348 344 344 M352 357 Q355 344 359 340" />
+        <circle cx="64" cy="320" r="3.5" class="flower" />
+        <circle cx="83" cy="328" r="2.5" class="flower-small" />
+        <circle cx="546" cy="325" r="3" class="flower" />
+        <circle cx="359" cy="339" r="2" class="flower-small" />
+      </g>
+      <path class="breeze-leaf" d="M119 224 Q126 216 133 220 Q130 228 119 224 Z" />
+    </g>
+
+    <!-- The hands and both leash endpoints stay still. -->
+    <path class="leash-loop" d="M349 225 C342 225 340 240 345 241 C350 242 353 233 349 225 Z" />
+
+    <g class="man ink">
+      <path class="skin" d="M229 189 C237 204 241 217 252 225 L249 232 C235 223 230 209 222 195 Z" />
+      <path class="shirt-shade" d="M225 167 C233 171 239 183 241 194 L226 201 L216 179 Z" />
+      <path class="shirt-cuff" d="M225 194 L240 189 L242 195 L227 201 Z" />
+
+      <g class="walking-leg man-leg-back">
+        <path class="trousers-shade" d="M194 239 L216 242 C211 273 206 308 196 342 L183 339 C188 305 191 271 194 239 Z" />
+        <path class="trouser-fold" d="M191 328 L198 330" />
+        <g class="walking-foot">
+          <path class="cream" d="M184 338 L196 341 L195 348 L182 347 Z" />
+          <path class="sneaker" d="M182 345 L195 346 C199 348 207 349 210 353 Q212 357 206 357 H181 Q177 355 182 345 Z" />
+          <path class="shoe-detail" d="M180 353 H208 M197 349 L194 352" />
+        </g>
+      </g>
+      <g class="walking-leg man-leg-front step-opposite">
+        <path class="trousers" d="M208 240 L230 240 C234 271 238 306 238 341 L224 343 C219 309 211 274 208 240 Z" />
+        <path class="trouser-fold" d="M218 255 Q221 278 225 293 M224 332 L237 330" />
+        <g class="walking-foot">
+          <path class="cream" d="M224 340 L236 339 L238 347 L225 348 Z" />
+          <path class="sneaker" d="M224 345 L237 344 C240 348 247 348 251 352 Q254 357 248 357 H223 Q219 354 224 345 Z" />
+          <path class="shoe-detail" d="M222 353 H250 M240 348 L237 351" />
+        </g>
+      </g>
+
+      <path class="cream" d="M199 163 Q208 159 220 164 L229 242 Q212 246 192 241 Z" />
+      <path class="skin" d="M201 147 L200 164 Q207 173 218 164 L216 147 Z" />
+      <path class="neck-shadow" d="M201 149 Q209 155 216 150 L217 155 Q209 160 201 155 Z" />
+      <path class="tee-neck" d="M199 166 Q208 175 219 166" />
+      <path class="shirt" d="M190 168 Q195 164 201 164 L205 180 L202 244 L185 240 C184 215 185 188 190 168 Z" />
+      <path class="shirt" d="M219 164 Q227 166 232 171 L232 208 L231 241 L218 244 L216 180 Z" />
+      <path class="shirt-collar" d="M200 163 L208 176 L202 182 L195 169 Z M219 163 L214 178 L222 181 L226 169 Z" />
+      <path class="shirt-detail" d="M190 187 H200 V196 Q195 199 190 196 Z M220 189 L220 233" />
+      <circle cx="223" cy="204" r="0.9" class="button" />
+      <circle cx="223" cy="220" r="0.9" class="button" />
+
+      <g class="free-arm">
+        <path class="skin" d="M177 199 L189 201 C186 215 185 227 186 238 C189 244 184 249 181 245 C177 246 175 242 175 238 C173 225 175 212 177 199 Z" />
+        <path class="hand-detail" d="M181 234 L182 241" />
+        <path class="shirt" d="M190 168 C181 169 176 183 175 199 L191 203 C194 191 198 179 195 173 Z" />
+        <path class="shirt-cuff" d="M175 196 L193 199 L191 205 L174 202 Z" />
+      </g>
+
+      <g class="man-head">
+        <path class="skin" d="M194 123 C194 109 219 107 226 119 C231 128 229 141 224 148 Q218 156 210 154 C201 152 196 145 195 137 Z" />
+        <path class="skin" d="M195 130 C187 126 188 140 195 141" />
+        <path class="ear-detail" d="M193 132 Q191 134 194 137" />
+        <path class="man-hair" d="M191 133 C188 128 187 120 190 114 Q187 112 190 109 L196 107 L195 104 Q201 105 205 101 Q210 103 214 102 C223 102 230 109 230 117 Q231 123 227 129 L225 120 Q219 122 215 116 Q211 121 207 119 Q201 125 197 123 L196 133 Z" />
+        <path class="hair-light" d="M197 113 Q204 108 211 109 M218 109 Q223 111 225 115" />
+        <path class="brow" d="M201 127 Q205 125 209 127 M217 126 Q221 124 224 126" />
+        <g class="blink man-eyes">
+          <path class="eye-line" d="M201 131 Q205 129 209 131 M216 130 Q220 128 224 130" />
+          <ellipse class="eye" cx="206" cy="131.3" rx="1.3" ry="1.8" />
+          <ellipse class="eye" cx="221" cy="130.5" rx="1.2" ry="1.7" />
+        </g>
+        <path class="face-detail" d="M214 132 L216 138 L213 139 M207 144 Q213 148 219 143" />
+        <path class="cheek" d="M200 138 Q203 137 206 139 M220 137 L223 136" />
+      </g>
+    </g>
+
+    <g class="woman ink">
+      <g transform="translate(296 129)">
+        <g class="hair-breeze">
+          <path class="woman-hair" d="M-19 8 C-23 -8 -14 -19 -1 -18 C13 -20 24 -6 20 10 C17 23 26 29 23 41 C20 51 27 58 19 67 Q-2 77 -23 66 C-16 56 -25 50 -21 38 C-17 27 -23 20 -19 8 Z" />
+          <path class="hair-light" d="M17 24 C14 37 20 44 17 55 M-18 38 Q-21 50 -16 57" />
+        </g>
+      </g>
+
+      <path class="skin" d="M282 176 C275 178 273 191 268 203 Q261 215 250 224 C247 226 247 230 251 232 C256 234 260 227 264 224 Q276 214 280 204 L289 182 Z" />
+      <path class="skin" d="M309 176 C317 183 319 198 329 208 L348 221 C353 223 354 228 350 230 C347 234 343 228 340 227 L325 218 C314 209 307 195 303 183 Z" />
+      <path class="hand-detail" d="M346 224 L350 227" />
+
+      <g class="walking-leg woman-leg-back">
+        <path class="skin" d="M286 232 L299 232 L294 298 C287 315 282 331 279 347 L270 347 Q273 320 281 295 Z" />
+        <g class="walking-foot">
+          <path class="flat" d="M270 345 Q275 350 280 346 C282 350 288 350 290 354 Q289 357 285 357 H268 Q265 354 270 345 Z" />
+          <path class="flat-detail" d="M272 348 L270 353" />
+        </g>
+      </g>
+      <g class="walking-leg woman-leg-front step-opposite">
+        <path class="skin" d="M294 232 L305 232 L305 296 C306 315 311 330 316 345 L307 349 Q297 325 294 297 Z" />
+        <g class="walking-foot">
+          <path class="flat" d="M307 345 Q311 349 316 344 C320 348 325 349 328 353 Q330 357 324 357 H306 Q302 354 307 345 Z" />
+          <path class="flat-detail" d="M309 349 L308 353" />
+        </g>
+      </g>
+
+      <path class="skin" d="M288 149 L287 174 Q292 181 301 174 L300 150 Z" />
+      <path class="neck-shadow" d="M288 151 Q293 157 300 152 L300 158 Q294 161 288 156 Z" />
+      <path class="dress" d="M282 175 Q285 172 288 176 L295 182 L303 175 Q307 172 310 176 C315 189 311 204 308 220 Q295 225 281 219 C282 204 276 189 282 175 Z" />
+      <g transform="translate(294 219)">
+        <g class="skirt-breeze">
+          <path class="dress" d="M-13 0 Q0 4 14 0 C20 25 32 57 40 85 Q29 93 16 90 Q0 96 -12 90 Q-27 94 -40 86 C-32 60 -19 25 -13 0 Z" />
+          <path class="dress-fold" d="M-10 12 C-15 37 -23 62 -25 83 M0 14 Q-5 52 -5 87 M10 12 Q17 48 25 82" />
+          <path class="dress-light" d="M-34 84 Q-25 88 -17 86" />
+        </g>
+      </g>
+      <path class="dress-belt" d="M281 216 Q295 221 308 216 L310 221 Q294 226 280 221 Z" />
+      <path class="belt-tie" d="M304 220 Q312 224 309 236 M304 221 Q301 228 305 233" />
+
+      <g class="woman-face" transform="rotate(-2 295 139)">
+        <path class="skin" d="M281.5 129 C281 119 298 116.5 305.5 125 C310.5 131.5 308.5 144.5 303 150.5 C299.5 154.5 294.5 156 289.5 152.5 C284 149 281 142 281.5 129 Z" />
+        <path class="skin" d="M307 134 C313 130 314 142 308 144" />
+        <path class="ear-detail" d="M309 136 Q312 137 309 140" />
+        <path class="woman-hair" d="M296 115 C285 111 277 119 278 131 C280 143 276 150 280 162 Q277 176 285 184 C287 175 282 170 285 162 C287 151 280.5 141 284 132 Q286.5 126.5 296 123 C301 127 306 127 308 135 L309 143 C316 133 314 123 306 118 Q301 114 296 115 Z" />
+        <path class="hair-light" d="M293 119 Q282 123 283 133 M300 119 Q309 123 310 129 M282 153 Q284 160 282 167" />
+        <path class="hair-part" d="M296 117 L295 123" />
+        <path class="brow" d="M285.5 130.5 Q288 129.4 290.5 130.4 M296.7 130.4 Q299.4 129.2 302 130.3" />
+        <g class="blink woman-eyes">
+          <path class="eye-line" d="M285.2 134.4 Q287.8 133 290.5 134.4 M296.4 134.4 Q299.2 133 302 134.4" />
+          <ellipse class="eye" cx="287.5" cy="134.9" rx="1.05" ry="1.4" />
+          <ellipse class="eye" cx="298.9" cy="134.9" rx="1.05" ry="1.4" />
+        </g>
+        <path class="face-detail" d="M293.3 138.4 C292.4 139.5 292.8 140.2 294.3 140 M290.2 145 Q293.7 147.2 297.2 144.9" />
+        <path class="cheek" d="M285 140.8 L287.5 141 M300 141 L302.5 140.7" />
+        <circle class="earring" cx="309" cy="145" r="1.6" />
+      </g>
+    </g>
+
+    <g class="clasped-hands ink">
+      <path class="skin" d="M248 224 Q251 223 254 226 L257 228 Q257 232 253 233 Q250 233 248 230 Q245 227 248 224 Z" />
+      <path class="hand-detail" d="M250 228 L253 230" />
+    </g>
+
+    <g class="zongzi ink">
+      <path class="fur-shade" d="M415 331 L427 332 L424 349 Q428 352 424 355 H412 Q409 352 412 347 Z M462 331 L474 332 L476 348 Q480 351 477 354 H465 Q462 353 463 348 Z" />
+      <g transform="translate(397 316)">
+        <g class="tail-wag">
+          <path class="fur" d="M2 4 C-10 4 -21 -7 -17 -14 Q-12 -20 -8 -13 Q-5 -6 5 -6 Z" />
+          <path class="fur-white tail-tip" d="M-17 -14 Q-12 -20 -8 -13 L-6 -9 Q-12 -8 -17 -14 Z" />
+        </g>
+      </g>
+      <path class="fur" d="M409 308 C425 301 448 303 466 305 C483 305 491 316 485 329 C481 342 462 345 438 343 L413 343 C398 343 390 334 393 321 Q395 312 409 308 Z" />
+      <path class="fur-white color-patch" d="M477 316 C473 329 459 334 438 334 Q416 337 404 333 C410 344 429 343 441 343 C462 345 480 340 485 329 Z" />
+      <path class="fur" d="M405 330 C402 337 403 344 406 349 L418 349 Q424 339 420 331" />
+      <path class="fur-white" d="M405 346 Q412 349 419 346 C425 350 424 357 417 357 H407 C400 357 400 350 405 346 Z" />
+      <path class="fur-white" d="M465 326 Q471 328 478 325 L478 346 C486 348 487 357 478 357 H468 Q461 357 462 350 C462 342 463 333 465 326 Z" />
+      <path class="paw-detail" d="M409 352 V355 M415 352 V355 M470 352 V355 M477 352 V355" />
+      <path class="leash" d="M348 227 C372 270 411 295 459 321" />
+      <path class="bandana" d="M452 309 Q473 314 491 309 L480 330 Q467 328 454 319 Z" />
+      <path class="bandana-fold" d="M461 317 L480 326" />
+      <circle class="leash-ring" cx="459" cy="321" r="2.6" />
+
+      <path class="fur" d="M451 283 C447 277 442 263 446 260 C450 255 463 263 469 275 Z" />
+      <path class="inner-ear" d="M453 277 Q448 269 449 264 Q456 266 463 276 Z" />
+      <path class="fur" d="M482 275 C488 265 500 256 504 260 C508 266 503 278 498 285 Z" />
+      <path class="inner-ear" d="M488 277 Q496 266 501 264 Q502 271 496 280 Z" />
+      <path class="fur" d="M454 276 C464 268 485 267 496 276 C505 283 509 296 505 305 Q505 312 496 317 C483 324 463 321 453 313 Q442 306 446 292 Q447 282 454 276 Z" />
+      <path class="fur-white color-patch" d="M448 295 Q456 300 463 297 C471 295 475 283 476 273 Q479 271 482 273 C480 282 482 291 488 295 Q500 292 506 302 Q509 309 499 315 C484 325 463 320 453 311 L449 306 L452 305 Z" />
+      <path d="M454 276 C464 268 485 267 496 276 C505 283 509 296 505 305 Q505 312 496 317 C483 324 463 321 453 313 Q442 306 446 292 Q447 282 454 276 Z" />
+      <path class="fur-white brow-spot" d="M458 283 Q462 279 466 283 Q462 286 458 283 Z M487 281 Q491 278 494 282 Q491 284 487 281 Z" />
+      <g class="dog-eyes">
+        <ellipse class="eye" cx="463" cy="290.5" rx="3.6" ry="4.3" />
+        <ellipse class="eye" cx="490" cy="289" rx="3.3" ry="4" />
+        <circle class="catchlight" cx="464.1" cy="289" r="1.2" />
+        <circle class="catchlight" cx="491" cy="287.7" r="1.1" />
+      </g>
+      <path class="muzzle-shade" d="M477 306 Q485 310 497 303 Q493 316 482 314 Z" />
+      <path class="tongue" d="M484 310 Q488 311 492 309 L492 314 Q489 320 485 315 Z" />
+      <path class="dog-smile" d="M477 307 Q481 313 487 308 Q492 312 498 306 M487 304 V308" />
+      <path class="nose" d="M482 299 Q487 296 492 299 Q494 301 490 304 Q487 306 484 303 Q480 301 482 299 Z" />
+      <path class="nose-light" d="M484 299.5 Q486 298.5 488 299" />
+    </g>
+  </svg>
+
+  <figcaption>{caption}</figcaption>
+</figure>
+
+<style>
+  .scene {
+    --sc-outline: #71523e;
+    --sc-detail: #513a2f;
+    --sc-skin: #f1d2b9;
+    --sc-skin-shade: #d7a98b;
+    --sc-man-hair: #40332d;
+    --sc-woman-hair: #72503c;
+    --sc-hair-light: #b18b68;
+    --sc-cream: #fff9ed;
+    --sc-shirt: #8297a4;
+    --sc-shirt-shade: #6c8290;
+    --sc-shirt-cuff: #a3b0b5;
+    --sc-trousers: #50565b;
+    --sc-trousers-shade: #444b50;
+    --sc-dress: #cb6046;
+    --sc-dress-shade: #a84c37;
+    --sc-flat: #725341;
+    --sc-fur: #e6ac61;
+    --sc-fur-shade: #c88d4c;
+    --sc-white: #fff9ed;
+    --sc-ear: #e0ab8c;
+    --sc-tongue: #de8b83;
+    --sc-sun: #dca448;
+    --sc-meadow: #a4a17b;
+    --sc-grass: #929777;
+    --sc-shadow: #806b48;
+    width: 100%;
+    margin: 0;
+  }
+
+  :global(.dark) .scene {
+    --sc-outline: #9b785a;
+    --sc-detail: #49372d;
+    --sc-skin: #e2b99a;
+    --sc-skin-shade: #c99374;
+    --sc-man-hair: #44382f;
+    --sc-woman-hair: #71523d;
+    --sc-hair-light: #ae8967;
+    --sc-cream: #e8decb;
+    --sc-shirt: #7c919c;
+    --sc-shirt-shade: #627884;
+    --sc-shirt-cuff: #9caaa9;
+    --sc-trousers: #565d60;
+    --sc-trousers-shade: #454d51;
+    --sc-dress: #c66a4e;
+    --sc-dress-shade: #a8553d;
+    --sc-flat: #9e7758;
+    --sc-fur: #d6a05a;
+    --sc-fur-shade: #b38349;
+    --sc-white: #eae0cb;
+    --sc-ear: #c99779;
+    --sc-tongue: #cf857b;
+    --sc-sun: #c89548;
+    --sc-meadow: #9a936b;
+    --sc-grass: #878d6b;
+    --sc-shadow: #080706;
+  }
+
+  .scene > svg { display: block; width: 100%; height: auto; }
+  .scene figcaption {
+    margin-top: 0.85rem;
+    color: var(--ink-3);
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    text-align: center;
+  }
+
+  .ink { stroke: var(--sc-outline); stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
+  .sun { fill: var(--sc-sun); opacity: 0.8; }
+  .sun-rays { stroke: var(--sc-sun); stroke-width: 1.35; stroke-linecap: round; opacity: 0.65; }
+  .cloud, .birds { stroke: var(--sc-meadow); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
+  .cloud { opacity: 0.65; }
+  .birds { opacity: 0.75; }
+  .meadow { fill: url(#meadow-wash); }
+  .hillside { stroke: var(--sc-meadow); stroke-width: 1; opacity: 0.25; }
+  .ground-shadow { fill: var(--sc-shadow); opacity: 0.13; }
+  .ground-line { stroke: url(#path-fade); stroke-width: 1.3; }
+  .path-marks { stroke: var(--sc-meadow); stroke-width: 1; stroke-linecap: round; opacity: 0.3; }
+  .wildflowers { stroke: var(--sc-grass); stroke-width: 1.25; stroke-linecap: round; }
+  .flower { fill: var(--sc-cream); stroke: var(--sc-sun); stroke-width: 1.5; }
+  .flower-small, .breeze-leaf { fill: var(--sc-sun); stroke: none; opacity: 0.65; }
+  .breeze-leaf { fill: var(--sc-grass); }
+
+  .skin { fill: var(--sc-skin); }
+  .neck-shadow { fill: var(--sc-skin-shade); stroke: none; opacity: 0.45; }
+  .ear-detail, .face-detail, .eye-line, .brow, .hand-detail {
+    fill: none;
+    stroke: var(--sc-detail);
+    stroke-width: 1.05;
+  }
+  .brow { stroke-width: 1.3; }
+  .woman-face .brow, .woman-face .eye-line, .woman-face .face-detail { stroke-width: 0.85; }
+  .woman-face .brow { opacity: 0.8; }
+  .woman-face .cheek { stroke-width: 2.4; opacity: 0.28; }
+  .eye { fill: var(--sc-detail); stroke: none; }
+  .cheek { stroke: #cd8872; stroke-width: 2.8; opacity: 0.36; }
+  .man-hair { fill: var(--sc-man-hair); }
+  .woman-hair { fill: var(--sc-woman-hair); }
+  .hair-light { stroke: var(--sc-hair-light); stroke-width: 1; opacity: 0.5; }
+  .hair-part { stroke: var(--sc-skin); stroke-width: 0.85; }
+  .earring { fill: var(--sc-cream); stroke-width: 0.8; }
+  .cream, .sneaker { fill: var(--sc-cream); }
+  .tee-neck { stroke: var(--sc-skin-shade); stroke-width: 1.2; }
+  .shirt, .shirt-collar { fill: var(--sc-shirt); }
+  .shirt-shade { fill: var(--sc-shirt-shade); }
+  .shirt-cuff { fill: var(--sc-shirt-cuff); }
+  .shirt-detail { stroke: var(--sc-detail); stroke-width: 0.9; opacity: 0.55; }
+  .button { fill: var(--sc-cream); stroke: none; }
+  .trousers { fill: var(--sc-trousers); }
+  .trousers-shade { fill: var(--sc-trousers-shade); }
+  .trouser-fold { stroke: var(--sc-cream); stroke-width: 1; opacity: 0.2; }
+  .shoe-detail { stroke-width: 0.9; opacity: 0.6; }
+  .dress { fill: var(--sc-dress); }
+  .dress-fold, .belt-tie { stroke: var(--sc-dress-shade); stroke-width: 1.3; }
+  .dress-light { stroke: var(--sc-cream); stroke-width: 1; opacity: 0.25; }
+  .dress-belt { fill: var(--sc-dress-shade); stroke: none; }
+  .flat { fill: var(--sc-flat); }
+  .flat-detail { stroke: var(--sc-cream); stroke-width: 1; opacity: 0.5; }
+  .leash, .leash-loop { stroke: var(--sc-dress-shade); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .leash-loop { stroke-width: 1.5; }
+
+  .fur { fill: var(--sc-fur); }
+  .fur-shade { fill: var(--sc-fur-shade); }
+  .fur-white { fill: var(--sc-white); }
+  .color-patch, .brow-spot, .tail-tip { stroke: none; }
+  .inner-ear { fill: var(--sc-ear); stroke-width: 0.9; }
+  .bandana { fill: var(--sc-dress); }
+  .bandana-fold { stroke: var(--sc-dress-shade); stroke-width: 1; }
+  .leash-ring { fill: var(--sc-dress-shade); stroke: var(--sc-cream); stroke-width: 1; }
+  .paw-detail { stroke-width: 0.85; opacity: 0.65; }
+  .catchlight { fill: #fffaf2; stroke: none; }
+  .muzzle-shade { fill: var(--sc-skin-shade); stroke: none; opacity: 0.2; }
+  .tongue { fill: var(--sc-tongue); stroke: var(--sc-detail); stroke-width: 0.9; }
+  .dog-smile { stroke: var(--sc-detail); stroke-width: 1.05; }
+  .nose { fill: var(--sc-detail); stroke: none; }
+  .nose-light { stroke: var(--sc-white); stroke-width: 0.85; opacity: 0.6; }
+
+  .walking-leg, .walking-foot, .free-arm { transform-box: view-box; }
+  .walking-leg, .walking-foot { animation: walk-step 1.8s ease-in-out infinite; }
+  .walking-foot { animation-name: foot-level; }
+  .step-opposite, .step-opposite .walking-foot { animation-delay: -0.9s; }
+  .man .walking-leg { --step-angle: 2.4deg; --step-lift: 0.95; }
+  .man-leg-back { transform-origin: 205px 237px; --step-forward: 0.9955; --step-back: 1.0061; }
+  .man-leg-front { transform-origin: 219px 237px; --step-forward: 1.005; --step-back: 0.9966; }
+  .man-leg-back .walking-foot { transform-origin: 190px 342px; }
+  .man-leg-front .walking-foot { transform-origin: 231px 342px; }
+  .woman .walking-leg { --step-angle: 2.8deg; --step-lift: 0.956; }
+  .woman-leg-back { transform-origin: 288px 232px; --step-forward: 0.996; --step-back: 1.0062; }
+  .woman-leg-front { transform-origin: 300px 232px; --step-forward: 1.0058; --step-back: 0.9964; }
+  .woman-leg-back .walking-foot { transform-origin: 275px 347px; }
+  .woman-leg-front .walking-foot { transform-origin: 312px 347px; }
+  .free-arm { transform-origin: 190px 174px; animation: arm-swing 1.8s ease-in-out infinite; }
+  .hair-breeze, .skirt-breeze, .tail-wag { transform-origin: 0px 0px; }
+  .hair-breeze { animation: hair-breeze 5s ease-in-out infinite alternate; }
+  .skirt-breeze { animation: skirt-breeze 4s ease-in-out -1s infinite alternate; }
+  .tail-wag { animation: tail-wag 0.65s ease-in-out infinite alternate; }
+  .blink { transform-box: fill-box; transform-origin: center; animation: blink 6s linear infinite; }
+  .woman-eyes { animation-delay: -2.3s; }
+  .cloud-one { animation: cloud-drift 22s ease-in-out infinite alternate; }
+  .cloud-two { animation: cloud-drift 28s ease-in-out -9s infinite alternate-reverse; }
+
+  /* Hip-rooted lift; counter-rotation keeps each shoe level through contact. */
+  @keyframes walk-step {
+    0%, 100% { transform: scaleY(var(--step-forward)) rotate(calc(-1 * var(--step-angle))); }
+    25% { transform: scaleY(1) rotate(0deg); }
+    50% { transform: scaleY(var(--step-back)) rotate(var(--step-angle)); }
+    75% { transform: scaleY(var(--step-lift)) rotate(0deg); }
+  }
+  @keyframes foot-level {
+    0%, 100% { transform: rotate(var(--step-angle)); }
+    25%, 75% { transform: rotate(0deg); }
+    50% { transform: rotate(calc(-1 * var(--step-angle))); }
+  }
+  @keyframes arm-swing { 0%, 100% { transform: rotate(2.5deg); } 50% { transform: rotate(-2.5deg); } }
+  @keyframes hair-breeze { from { transform: rotate(-0.6deg); } to { transform: rotate(0.8deg); } }
+  @keyframes skirt-breeze { from { transform: rotate(-0.5deg); } to { transform: rotate(0.7deg); } }
+  @keyframes tail-wag { from { transform: rotate(-9deg); } to { transform: rotate(12deg); } }
+  @keyframes blink { 0%, 94%, 98%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
+  @keyframes cloud-drift { from { transform: translateX(-4px); } to { transform: translateX(7px); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene svg * { animation: none !important; }
+  }
+</style>

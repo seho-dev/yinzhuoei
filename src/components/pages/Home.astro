@@ -1,0 +1,279 @@
+---
+import type { Post } from '../../lib/posts';
+import { useTranslations, localePath } from '../../i18n/utils';
+import type { Lang } from '../../i18n/ui';
+import { profile, site } from '../../config';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostRow from '../PostRow.astro';
+import Icon from '../Icon.astro';
+import HeroIllustration from '../HeroIllustration.astro';
+
+interface Props { lang: Lang; posts: Post[] }
+const { lang, posts } = Astro.props;
+const t = useTranslations(lang);
+// Featured first, then recent posts, up to 4 rows.
+const featured = posts.filter((p) => p.data.featured);
+const rest = posts.filter((p) => !p.data.featured);
+const shown = [...featured, ...rest].slice(0, 4);
+const path = localePath(lang, '/');
+---
+<BaseLayout
+  title={site.title}
+  description={site.description[lang]}
+  lang={lang}
+  path={path}
+  alternates={{ en: '/', zh: '/zh' }}
+>
+  <div class="home">
+    <!-- ─── Hero ─── -->
+    <section class="hero">
+      <div class="hero-text">
+        <p class="hero-kicker reveal">
+          <span class="kicker-rule" aria-hidden="true"></span>
+          {profile.role[lang]} · {profile.location[lang]}
+        </p>
+
+        <h1 class="hero-title">
+          {lang === 'en' ? (
+            <>
+              <span class="line reveal" style="--reveal-delay:60ms">Crafting software</span>
+              <span class="line reveal" style="--reveal-delay:140ms">that feels <em>right</em>.</span>
+            </>
+          ) : (
+            <>
+              <span class="line reveal" style="--reveal-delay:60ms">构建<em>恰到好处</em></span>
+              <span class="line reveal" style="--reveal-delay:140ms">的软件。</span>
+            </>
+          )}
+        </h1>
+
+        <div class="hero-intro reveal" style="--reveal-delay:220ms">
+          {lang === 'en' ? (
+            <p>
+              I'm Seho — a software engineer from China working across frontend
+              engineering, AI tooling and open source. I care about developer
+              experience, honest abstractions, and the small details that make
+              software a pleasure to use.
+            </p>
+          ) : (
+            <p>
+              我是 Seho，一名来自中国的软件工程师，从事前端工程、AI 工具与开源相关的工作。
+              我在意开发者体验、诚实的抽象，以及那些让软件真正好用的微小细节。
+            </p>
+          )}
+          <div class="hero-links">
+            <a class="hero-link" href={profile.github} target="_blank" rel="me noopener">
+              <Icon name="github" size={15} /> GitHub <Icon name="arrow-up-right" size={13} class="ext" />
+            </a>
+            <a class="hero-link" href={profile.x} target="_blank" rel="me noopener">
+              <Icon name="x-logo" size={13} /> {profile.xHandle} <Icon name="arrow-up-right" size={13} class="ext" />
+            </a>
+            <a class="hero-link accent" href={localePath(lang, '/blog')}>
+              {t('nav.blog')} <Icon name="arrow-right" size={14} class="ext" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-art">
+        <HeroIllustration
+          caption={lang === 'en'
+            ? 'My love, our corgi Zongzi, and me.'
+            : '爱人、小狗粽子，和我。'}
+        />
+      </div>
+    </section>
+
+    <!-- ─── Open source ─── -->
+    <section class="section reveal">
+      <div class="section-head">
+        <h2 class="section-title">
+          <span class="section-index" aria-hidden="true">01</span>
+          {t('home.projects')}
+        </h2>
+      </div>
+      <div class="projects">
+        {profile.projects.map((p) => (
+          <a class="project-row" href={p.url} target="_blank" rel="noopener">
+            <span class="project-name">{p.name}</span>
+            <span class="project-desc">{p.description[lang]}</span>
+            <Icon name="arrow-up-right" size={15} class="project-arrow" />
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- ─── Selected writing ─── -->
+    <section class="section reveal">
+      <div class="section-head">
+        <h2 class="section-title">
+          <span class="section-index" aria-hidden="true">02</span>
+          {t('home.writings')}
+        </h2>
+        <a class="section-more" href={localePath(lang, '/blog')}>
+          {t('home.writings.all')} <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+      <div class="section-list">
+        {shown.map((post) => <PostRow post={post} lang={lang} showYear />)}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .home {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(21rem, 30rem);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    padding: clamp(3.5rem, 8vh, 6.5rem) 0 clamp(3rem, 7vh, 5.5rem);
+  }
+  .hero-text { min-width: 0; }
+  .hero-art { min-width: 0; }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-art {
+      max-width: 26rem;
+      margin: 1rem auto 0;
+      width: 100%;
+    }
+  }
+  .hero-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .kicker-rule {
+    width: 2.5rem;
+    height: 1px;
+    background: var(--accent);
+  }
+  .hero-title {
+    margin-top: 1.75rem;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(2.5rem, 5.8vw, 4.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+  }
+  .hero-title .line { display: block; }
+  .hero-title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .hero-intro {
+    margin-top: 2.25rem;
+    max-width: 34rem;
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .hero-links {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+  .hero-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink);
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--line-strong);
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .hero-link .ext { color: var(--ink-3); transition: color 0.2s ease, transform 0.25s var(--ease-out); }
+  .hero-link:hover { color: var(--accent); border-color: var(--accent); }
+  .hero-link:hover .ext { color: var(--accent); transform: translate(1px, -1px); }
+  .hero-link.accent { color: var(--accent); border-color: color-mix(in oklch, var(--accent) 40%, transparent); }
+
+  /* Sections */
+  .section { padding: 3.5rem 0 4rem; border-top: 1px solid var(--line); }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .section-index {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    color: var(--accent);
+  }
+  .section-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink-3);
+    transition: color 0.2s ease;
+  }
+  .section-more:hover { color: var(--accent); }
+
+  /* Projects */
+  .projects { border-top: 1px solid var(--line); }
+  .project-row {
+    display: grid;
+    grid-template-columns: 14rem 1fr auto;
+    align-items: baseline;
+    gap: 1.25rem;
+    padding: 1.1rem 0.5rem;
+    margin: 0 -0.5rem;
+    border-bottom: 1px solid var(--line);
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+  .project-row:hover { background: var(--bg-subtle); }
+  .project-name {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .project-row:hover .project-name { color: var(--accent); }
+  .project-desc {
+    font-size: 0.875rem;
+    color: var(--ink-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .project-arrow { color: var(--ink-3); transition: transform 0.25s var(--ease-out), color 0.2s ease; }
+  .project-row:hover .project-arrow { transform: translate(2px, -2px); color: var(--accent); }
+  @media (max-width: 640px) {
+    .project-row { grid-template-columns: 1fr auto; gap: 0.15rem 0.75rem; }
+    .project-desc { grid-column: 1 / -1; grid-row: 2; white-space: normal; }
+    .project-arrow { grid-column: 2; grid-row: 1; }
+  }
+</style>

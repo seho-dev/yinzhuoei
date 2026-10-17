@@ -1,0 +1,21 @@
+---
+/** MDX component: a figure with caption. */
+interface Props { src: string; alt: string; caption?: string }
+const { src, alt, caption } = Astro.props;
+---
+<figure class="mdx-figure">
+  <img src={src} alt={alt} loading="lazy" decoding="async" />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .mdx-figure { margin: 2em 0; }
+  .mdx-figure img { border-radius: 6px; border: 1px solid var(--line); }
+  .mdx-figure figcaption {
+    margin-top: 0.75em;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--ink-3);
+    text-align: center;
+  }
+</style>

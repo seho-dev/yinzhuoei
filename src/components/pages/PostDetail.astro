@@ -1,0 +1,270 @@
+---
+import { render } from 'astro:content';
+import type { Post } from '../../lib/posts';
+import { postSlug, minutesRead, postCategories, postViews, formatViews } from '../../lib/posts';
+import { localePath, useTranslations, formatDate } from '../../i18n/utils';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TableOfContents from '../TableOfContents.astro';
+import ReadingProgress from '../ReadingProgress.astro';
+import Icon from '../Icon.astro';
+
+interface Props {
+  post: Post;
+  lang: Lang;
+  prev: Post | null;
+  next: Post | null;
+  /** Path of the translated version, if it exists. */
+  translationPath?: string | undefined;
+  alternates?: { en: string; zh: string } | undefined;
+}
+const { post, lang, prev, next, translationPath, alternates } = Astro.props;
+const t = useTranslations(lang);
+const { Content, headings } = await render(post);
+const path = localePath(lang, `/blog/${postSlug(post)}`);
+const blogPath = localePath(lang, '/blog');
+const categories = postCategories(post);
+const viewsFormatted = formatViews(postViews(post));
+---
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  lang={lang}
+  path={path}
+  ogType="article"
+  publishedTime={post.data.date}
+  modifiedTime={post.data.updated}
+  alternates={alternates}
+  altHref={translationPath}
+>
+  <ReadingProgress />
+  <article class="post" data-article>
+    <header class="post-head reveal">
+      <a class="back-link" href={blogPath}>
+        <Icon name="arrow-left" size={14} /> {t('post.back')}
+      </a>
+      <h1 class="post-title">{post.data.title}</h1>
+      <p class="post-desc">{post.data.description}</p>
+      <div class="post-meta">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date, lang)}</time>
+        <span class="meta-dot" aria-hidden="true">·</span>
+        <span>{minutesRead(post)} {t('blog.minRead')}</span>
+        <span class="meta-dot" aria-hidden="true">·</span>
+        <span class="post-views" title={`${viewsFormatted} ${t('blog.views')}`}>
+          <Icon name="eye" size={14} />
+          <span>{viewsFormatted} {t('blog.views')}</span>
+        </span>
+        {post.data.updated && (
+          <>
+            <span class="meta-dot" aria-hidden="true">·</span>
+            <span>{t('post.updated')} {formatDate(post.data.updated, lang)}</span>
+          </>
+        )}
+        {categories.map((cat) => <span class="tag">{cat}</span>)}
+      </div>
+      {translationPath && (
+        <a class="translation-note" href={translationPath}>
+          <Icon name="languages" size={14} /> {t('post.translation')}
+        </a>
+      )}
+    </header>
+
+    <div class="post-grid">
+      <div class="prose reveal" data-pagefind-body>
+        <Content />
+      </div>
+      <aside class="post-aside">
+        <TableOfContents headings={headings} lang={lang} />
+      </aside>
+    </div>
+
+    <nav class="post-nav" aria-label="More posts">
+      {prev ? (
+        <a class="nav-card" href={localePath(lang, `/blog/${postSlug(prev)}`)}>
+          <span class="nav-label"><Icon name="arrow-left" size={13} /> {t('post.prev')}</span>
+          <span class="nav-title">{prev.data.title}</span>
+        </a>
+      ) : <span />}
+      {next ? (
+        <a class="nav-card right" href={localePath(lang, `/blog/${postSlug(next)}`)}>
+          <span class="nav-label">{t('post.next')} <Icon name="arrow-right" size={13} /></span>
+          <span class="nav-title">{next.data.title}</span>
+        </a>
+      ) : <span />}
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .post {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 3.5rem var(--gutter) 6rem;
+  }
+  .post-head { max-width: var(--measure); }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink-3);
+    transition: color 0.2s ease;
+  }
+  .back-link:hover { color: var(--accent); }
+  .post-title {
+    margin-top: 1.75rem;
+    font-family: var(--font-serif);
+    font-size: clamp(2.1rem, 5.5vw, 3.4rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .post-desc {
+    margin-top: 1rem;
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--ink-2);
+    font-family: var(--font-serif);
+    font-style: italic;
+  }
+  .post-meta {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    font-size: 0.8125rem;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .meta-dot { color: var(--line-strong); }
+  .post-views {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .tag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ink-2);
+    background: var(--bg-subtle);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+  }
+  .translation-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+  }
+  .post-grid {
+    display: grid;
+    grid-template-columns: minmax(0, var(--measure)) 1fr;
+    gap: 4rem;
+    margin-top: 2.5rem;
+  }
+  .post-aside { min-width: 0; }
+  @media (max-width: 1080px) {
+    .post-grid { grid-template-columns: minmax(0, var(--measure)); }
+    .post-aside { display: none; }
+  }
+
+  .post-nav {
+    max-width: var(--measure);
+    margin-top: 4.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .nav-card {
+    display: block;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .nav-card.right { text-align: right; }
+  .nav-card:hover { border-color: var(--accent); background: var(--bg-subtle); }
+  .nav-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ink-3);
+  }
+  .nav-title {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  @media (max-width: 560px) {
+    .post-nav { grid-template-columns: 1fr; }
+    .nav-card.right { text-align: left; }
+  }
+</style>
+
+<style is:global>
+  /* Injected copy buttons for code blocks */
+  .code-wrap { position: relative; }
+  .code-copy {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--ink-3);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .code-wrap:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
+  .code-copy:hover { color: var(--ink); border-color: var(--line-strong); }
+  .code-copy.copied { color: var(--accent); border-color: var(--accent); }
+</style>
+
+<script>
+  function addCopyButtons() {
+    document.querySelectorAll<HTMLElement>('.prose pre').forEach((pre) => {
+      if (pre.parentElement?.classList.contains('code-wrap')) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'code-wrap';
+      pre.parentNode!.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+      const btn = document.createElement('button');
+      btn.className = 'code-copy';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', 'Copy code');
+      btn.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+      btn.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(pre.innerText);
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 1600);
+      });
+      wrap.appendChild(btn);
+    });
+  }
+  addCopyButtons();
+  document.addEventListener('astro:page-load', addCopyButtons);
+</script>

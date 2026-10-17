@@ -1,0 +1,300 @@
+@import 'tailwindcss';
+
+/* ─── Fonts ─────────────────────────────────────────────────────────────── */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/newsreader';
+@import '@fontsource-variable/newsreader/standard-italic.css';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource/noto-sans-sc/400.css';
+@import '@fontsource/noto-sans-sc/500.css';
+@import '@fontsource/noto-sans-sc/700.css';
+@import '@fontsource/noto-serif-sc/500.css';
+@import '@fontsource/noto-serif-sc/600.css';
+@import '@fontsource/noto-serif-sc/700.css';
+@import '@fontsource/noto-serif-sc/900.css';
+
+/* ─── Design tokens ─────────────────────────────────────────────────────── */
+:root {
+  --font-sans: 'Inter Variable', 'Inter', -apple-system, 'PingFang SC',
+    'Hiragino Sans GB', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --font-serif: 'Newsreader Variable', 'Newsreader', 'Songti SC', 'Noto Serif SC',
+    'Source Han Serif SC', Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace,
+    'SF Mono', Menlo, monospace;
+
+  --bg: #faf9f7;
+  --bg-subtle: #f3f2ee;
+  --ink: #1a1916;
+  --ink-2: #57544d;
+  --ink-3: #8a867c;
+  --line: #e6e4de;
+  --line-strong: #d4d1c8;
+  --accent: #b3401f;
+  --accent-soft: color-mix(in oklch, var(--accent) 9%, transparent);
+  --selection: color-mix(in oklch, var(--accent) 18%, transparent);
+  --code-bg: #f4f3ef;
+
+  --measure: 41rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --page-max: 74rem;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 0.45s;
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #131211;
+  --bg-subtle: #1b1a18;
+  --ink: #e9e7e2;
+  --ink-2: #a39e93;
+  --ink-3: #6f6a61;
+  --line: #262422;
+  --line-strong: #38352f;
+  --accent: #e0683f;
+  --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+  --selection: color-mix(in oklch, var(--accent) 30%, transparent);
+  --code-bg: #1c1b19;
+
+  color-scheme: dark;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  font-feature-settings: 'cv05', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img, svg, video { max-width: 100%; height: auto; }
+
+/* CJK punctuation hangs & justifies better */
+.prose, [data-cjk] {
+  hanging-punctuation: first allow-end last;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+
+/* ─── Reveal on scroll ──────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal.is-visible { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Prose (article typography) ────────────────────────────────────────── */
+.prose {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: var(--ink);
+  letter-spacing: 0.002em;
+  overflow-wrap: break-word;
+}
+.prose [lang] { font-family: inherit; }
+
+.prose > * + * { margin-top: 1.5em; }
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 5.5rem;
+}
+.prose h2 { font-size: 1.55em; margin: 2.3em 0 0.7em; }
+.prose h3 { font-size: 1.22em; margin: 2em 0 0.5em; }
+.prose h4 { font-size: 1.05em; margin: 1.7em 0 0.4em; }
+
+.prose h2 a.heading-anchor, .prose h3 a.heading-anchor, .prose h4 a.heading-anchor {
+  color: inherit;
+  position: relative;
+}
+.prose h2 a.heading-anchor:hover::before,
+.prose h3 a.heading-anchor:hover::before,
+.prose h4 a.heading-anchor:hover::before {
+  content: '#';
+  position: absolute;
+  left: -1.1em;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.prose p { margin: 0; }
+.prose strong { font-weight: 600; }
+.prose em { font-style: italic; }
+
+.prose a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+.prose a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.prose blockquote {
+  margin: 0;
+  padding: 0.1em 0 0.1em 1.4em;
+  border-left: 2px solid var(--accent);
+  color: var(--ink-2);
+  font-style: italic;
+}
+.prose blockquote p { margin: 0; }
+.prose blockquote > * + * { margin-top: 0.8em; }
+
+.prose ul, .prose ol { padding-left: 1.5em; margin: 0; }
+.prose li { margin-top: 0.45em; padding-left: 0.25em; }
+.prose li::marker { color: var(--ink-3); }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 3em auto;
+}
+
+.prose code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.15em 0.38em;
+  white-space: nowrap;
+}
+
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  padding: 1.1rem 1.25rem;
+  margin-left: calc(var(--gutter) * -0.5);
+  margin-right: calc(var(--gutter) * -0.5);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--code-bg) !important;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+@media (min-width: 768px) {
+  .prose pre { margin-left: 0; margin-right: 0; }
+}
+.prose pre code { background: none; border: none; padding: 0; }
+
+/* Shiki dual-theme via CSS variables */
+.dark .prose pre code span,
+.dark .prose pre code {
+  color: var(--shiki-dark) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+}
+.prose pre code span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+}
+
+.prose figure { margin: 2em 0; }
+.prose figcaption {
+  margin-top: 0.75em;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+  text-align: center;
+}
+.prose img { border-radius: 6px; }
+
+.prose table {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  border-collapse: collapse;
+}
+@media (max-width: 640px) {
+  .prose table { display: block; overflow-x: auto; }
+}
+.prose thead { border-bottom: 1.5px solid var(--line-strong); }
+.prose th {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.6em 1.25em 0.6em 0;
+  white-space: nowrap;
+}
+.prose td {
+  padding: 0.65em 1.25em 0.65em 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.prose td:last-child, .prose th:last-child { padding-right: 0; }
+
+.prose sup a { text-decoration: none; color: var(--accent); }
+
+/* ─── Pagefind overrides ────────────────────────────────────────────────── */
+:root {
+  --pagefind-ui-scale: 0.9;
+  --pagefind-ui-primary: var(--accent);
+  --pagefind-ui-text: var(--ink);
+  --pagefind-ui-background: var(--bg);
+  --pagefind-ui-border: var(--line);
+  --pagefind-ui-tag: var(--bg-subtle);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 8px;
+  --pagefind-ui-font: var(--font-sans);
+}

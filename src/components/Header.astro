@@ -1,0 +1,141 @@
+---
+import { site } from '../config';
+import { localePath, useTranslations, alternateUrl } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+import ThemeToggle from './ThemeToggle.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import Search from './Search.astro';
+
+interface Props {
+  lang: Lang;
+  /** Optional explicit href for the language switch (e.g. translated post). */
+  altHref?: string | undefined;
+}
+const { lang, altHref } = Astro.props;
+const t = useTranslations(lang);
+const pathname = Astro.url.pathname;
+const homeHref = localePath(lang, '/');
+
+function isActive(key: string) {
+  const base = lang === 'zh' ? '/zh' : '';
+  if (key === 'home') return pathname === `${base}/`;
+  return pathname.startsWith(`${base}/blog`);
+}
+---
+<header class="site-header">
+  <div class="header-inner">
+    <a href={homeHref} class="brand" aria-label={site.name}>
+      <span class="brand-mark">S</span>
+      <span class="brand-name">{site.name}</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main">
+      <a href={homeHref} class:list={['nav-link', { active: isActive('home') }]} aria-current={isActive('home') ? 'page' : undefined}>
+        {t('nav.home')}
+      </a>
+      <a href={localePath(lang, '/blog')} class:list={['nav-link', { active: isActive('blog') }]} aria-current={isActive('blog') ? 'page' : undefined}>
+        {t('nav.blog')}
+      </a>
+    </nav>
+
+    <div class="header-actions">
+      <Search label={t('search.open')} hint={t('search.hint')} devOnly={t('search.devOnly')} />
+      <LanguageSwitcher lang={lang} href={altHref ?? alternateUrl(Astro.url, lang === 'en' ? 'zh' : 'en')} />
+      <ThemeToggle label={t('theme.toggle')} />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in oklch, var(--bg) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+  .site-header[data-scrolled] { border-bottom-color: var(--line); }
+  .header-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    height: 3.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 5px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--font-serif);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 0.25s ease, transform 0.25s var(--ease-out);
+  }
+  .brand:hover .brand-mark { background: var(--accent); transform: rotate(-6deg); }
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.5rem;
+  }
+  .nav-link {
+    position: relative;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink-2);
+    border-radius: 6px;
+    transition: color 0.2s ease;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0.65rem;
+    right: 0.65rem;
+    bottom: 0.15rem;
+    height: 1.5px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .nav-link:hover { color: var(--ink); }
+  .nav-link:hover::after { transform: scaleX(1); }
+  .nav-link.active { color: var(--ink); }
+  .nav-link.active::after { transform: scaleX(1); }
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+</style>
+
+<script>
+  function bindHeader() {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    if (!header || header.dataset.bound) return;
+    header.dataset.bound = '1';
+    const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  bindHeader();
+  document.addEventListener('astro:page-load', bindHeader);
+</script>

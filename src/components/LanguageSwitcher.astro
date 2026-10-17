@@ -1,0 +1,37 @@
+---
+import Icon from './Icon.astro';
+import { languages, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Explicit target href for the other language (e.g. translated post). */
+  href: string;
+}
+const { lang, href } = Astro.props;
+const other = lang === 'en' ? 'zh' : 'en';
+---
+<a class="lang-switch" href={href} hreflang={other === 'zh' ? 'zh-CN' : 'en'} aria-label={`Switch to ${languages[other]}`}>
+  <Icon name="languages" size={15} />
+  <span>{languages[other]}</span>
+</a>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 2rem;
+    padding: 0 0.65rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--ink-2);
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  @media (max-width: 560px) {
+    .lang-switch span { display: none; }
+    .lang-switch { padding: 0; width: 2rem; justify-content: center; }
+  }
+  .lang-switch:hover { color: var(--ink); background: var(--bg-subtle); }
+</style>

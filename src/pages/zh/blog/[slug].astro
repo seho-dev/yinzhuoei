@@ -1,0 +1,33 @@
+---
+import PostDetail from '../../../components/pages/PostDetail.astro';
+import { getPosts, getTranslationsMap, postSlug, type Post } from '../../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts('zh');
+  const map = await getTranslationsMap();
+  return posts.map((post, i) => {
+    const siblings = map.get(post.data.translationKey) ?? [];
+    const en = siblings.find((p) => p.data.lang === 'en' && p.id !== post.id);
+    return {
+      params: { slug: postSlug(post) },
+      props: {
+        post,
+        prev: (posts[i - 1] ?? null) as Post | null,
+        next: (posts[i + 1] ?? null) as Post | null,
+        enSlug: en ? postSlug(en) : null,
+      },
+    };
+  });
+}
+
+const { post, prev, next, enSlug } = Astro.props;
+const zhPath = `/zh/blog/${postSlug(post)}`;
+---
+<PostDetail
+  post={post}
+  lang="zh"
+  prev={prev}
+  next={next}
+  translationPath={enSlug ? `/blog/${enSlug}` : undefined}
+  alternates={enSlug ? { en: `/blog/${enSlug}`, zh: zhPath } : undefined}
+/>
