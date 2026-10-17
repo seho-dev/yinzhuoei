@@ -13,11 +13,25 @@ const { caption } = Astro.props;
     role="img"
     aria-label={caption}
   >
+    <g class="color-fields">
+      <path class="sun-wash" d="M428 87 C440 74 463 79 470 95 C478 114 463 129 447 126 C430 124 418 103 428 87 Z" />
+      <path class="ground-wash" d="M149 358 C176 347 265 350 321 355 Q341 360 317 363 C260 368 182 365 149 358 Z M397 355 Q451 344 509 354 Q521 360 497 362 Q432 366 397 355 Z" />
+    </g>
     <g class="setting fine">
       <path class="sun" d="M453 119 C429 128 416 109 423 91 C430 72 459 74 465 93 C470 107 462 122 449 125" />
-      <path d="M87 169 Q103 157 121 164 M98 175 Q109 169 119 172" />
+      <path class="breeze" d="M87 169 Q103 157 121 164 M98 175 Q109 169 119 172" />
       <path class="ground" d="M62 358 C121 353 147 361 185 359 M223 360 Q268 357 311 359 M355 359 Q399 355 438 359 M494 359 L539 356" />
-      <path d="M102 354 Q106 341 102 325 M104 343 Q94 342 92 335 M104 338 Q114 334 113 328" />
+      <g class="sprig">
+        <path d="M102 354 Q106 341 102 325 M104 343 Q94 342 92 335 M104 338 Q114 334 113 328" />
+        <path class="leaf" d="M98 341 Q88 341 87 332 Q96 331 98 341 Z M107 336 Q106 325 116 323 Q119 332 107 336 Z" />
+        <path class="flower" d="M101 327 C91 327 94 319 99 321 C95 314 105 311 106 319 C112 315 116 324 108 326 Z" />
+      </g>
+    </g>
+    <g transform="translate(123 145)">
+      <g class="butterfly">
+        <path class="wing" d="M0 0 C-12 1 -17 -10 -11 -12 C-5 -13 -1 -5 0 0 C3 -12 12 -15 14 -9 Q17 -1 0 0 Z" />
+        <path class="fine" d="M-2 -3 L1 2" />
+      </g>
     </g>
 
     <g class="person man">
@@ -40,6 +54,7 @@ const { caption } = Astro.props;
       </g>
 
       <path class="paper" d="M187 151 Q196 147 209 153 C219 163 216 181 213 197 L210 239 Q192 248 174 239 C181 216 176 194 180 174 Z" />
+      <path class="shirt-wash" d="M185 159 Q198 154 210 160 C217 178 208 206 208 236 Q193 243 181 237 C187 213 177 183 185 159 Z" />
       <path class="fine" d="M194 150 L198 165 L208 153 M198 165 Q190 200 192 231" />
       <path class="neck" d="M197 136 L194 150 M210 135 L209 153" />
 
@@ -52,7 +67,7 @@ const { caption } = Astro.props;
 
       <g transform="rotate(12 201 138)">
         <path class="paper" d="M191 106 C191 97 205 93 214 99 C225 106 218 126 211 133 Q203 141 195 131 Q190 123 191 106 Z" />
-        <path d="M191 119 C182 116 184 100 191 96 Q205 86 218 101 M189 105 Q201 109 214 100" />
+        <path class="hair" d="M191 119 C182 116 184 100 191 96 Q205 86 218 101 M189 105 Q201 109 214 100" />
         <path class="fine" d="M193 116 Q188 111 189 117 Q189 121 193 122 M207 115 Q210 113 213 115 M205 127 Q209 130 212 127" />
       </g>
     </g>
@@ -79,11 +94,12 @@ const { caption } = Astro.props;
       <path class="arm" d="M282 173 C273 184 271 202 255 214 L251 217" />
       <path class="arm" d="M307 173 C317 184 319 195 331 199 L349 204" />
       <path class="paper dress" d="M282 171 Q292 177 304 172 C312 184 302 201 304 218 C307 244 324 260 334 276 C314 290 283 299 260 285 C270 262 273 239 282 219 Q287 199 282 183 Z" />
+      <path class="dress-wash" d="M287 178 Q295 181 302 177 C307 190 298 206 300 222 C306 244 316 262 328 275 Q302 293 268 283 C281 259 276 238 287 218 Q291 199 287 178 Z" />
       <path class="fine" d="M282 219 Q292 222 304 218 M297 239 Q302 264 319 278 M269 283 Q279 289 287 287" />
       <path class="neck" d="M287 155 L286 172 M299 155 L301 172" />
 
       <path class="paper" d="M281 137 C279 124 293 119 302 128 C311 137 304 153 297 157 Q287 163 282 150 Z" />
-      <path class="paper" d="M285 135 Q292 132 295 125 C304 127 308 137 305 147 C302 156 307 163 312 165 C307 151 316 141 307 127 C300 114 282 117 277 131 C272 143 281 151 275 163 Q271 171 276 178 C274 165 285 162 281 148 Q277 139 285 135 Z" />
+      <path class="paper hair" d="M285 135 Q292 132 295 125 C304 127 308 137 305 147 C302 156 307 163 312 165 C307 151 316 141 307 127 C300 114 282 117 277 131 C272 143 281 151 275 163 Q271 171 276 178 C274 165 285 162 281 148 Q277 139 285 135 Z" />
       <path class="fine" d="M284 141 Q287 143 290 140 M285 152 Q289 155 292 152" />
       <path class="fine" d="M281 129 Q285 122 292 122 M307 152 Q306 160 310 163" />
     </g>
@@ -97,6 +113,7 @@ const { caption } = Astro.props;
         </g>
       </g>
       <path class="paper" d="M416 314 C433 307 451 314 471 309 C485 308 494 317 491 328 Q487 342 460 341 L427 341 C411 341 403 333 405 324 Q406 318 416 314 Z" />
+      <path class="coat-wash" d="M411 322 C429 312 452 320 475 313 Q489 314 486 325 C467 333 441 327 428 334 Q413 334 411 322 Z" />
       <path class="paper" d="M416 335 L415 350 Q418 354 429 352 Q433 350 427 348 L430 338 M472 336 L473 350 Q481 354 489 352 Q493 350 484 347 L485 332" />
       <path class="fine" d="M430 334 Q425 327 430 322" />
 
@@ -105,6 +122,7 @@ const { caption } = Astro.props;
       <path class="bandana" d="M465 308 Q484 321 502 329 L491 344 Q477 337 465 323 Z" />
 
       <path class="paper" d="M468 301 C462 296 459 287 463 285 C467 282 478 288 482 295 Q488 292 494 295 C501 286 510 282 513 286 Q516 291 508 302 C519 314 513 329 500 333 Q482 339 470 326 C461 319 463 310 468 301 Z" />
+      <path class="coat-wash" d="M467 289 Q474 290 480 300 Q485 296 490 298 C488 309 481 316 470 315 Q465 308 472 302 Z M495 298 Q503 289 509 289 L504 303 Q513 313 508 320 C498 318 495 308 495 298 Z" />
       <path class="fine" d="M466 290 L474 298 M508 290 L501 298 M477 309 Q479 307 481 309 M496 309 Q498 307 500 309 M486 321 Q490 327 495 322 Q500 326 504 320 M495 319 V322" />
       <path class="nose" d="M491 316 Q495 313 499 316 Q499 319 495 320 Q492 319 491 316 Z" />
     </g>
@@ -118,6 +136,12 @@ const { caption } = Astro.props;
     --scene-paper: var(--bg, #faf9f7);
     --scene-ink: var(--ink-2, #57544d);
     --scene-accent: var(--accent, #b3401f);
+    --scene-blue: #b6d0d5;
+    --scene-rose: #e9ab96;
+    --scene-gold: #edc773;
+    --scene-coat: #dfba7e;
+    --scene-green: #91aa8b;
+    --scene-hair: #94765d;
     margin: 0;
     width: 100%;
   }
@@ -126,6 +150,12 @@ const { caption } = Astro.props;
     --scene-paper: var(--bg, #131211);
     --scene-ink: var(--ink-2, #a39e93);
     --scene-accent: var(--accent, #e0683f);
+    --scene-blue: #5d8798;
+    --scene-rose: #b97564;
+    --scene-gold: #d9b564;
+    --scene-coat: #bf985e;
+    --scene-green: #88a98c;
+    --scene-hair: #ba9879;
   }
 
   .scene > svg {
@@ -149,10 +179,23 @@ const { caption } = Astro.props;
   }
 
   .paper { fill: var(--scene-paper); }
+  .color-fields, .shirt-wash, .dress-wash, .coat-wash { stroke: none; }
+  .sun-wash, .flower { fill: var(--scene-gold); }
+  .ground-wash { fill: var(--scene-green); opacity: 0.12; }
+  .shirt-wash { fill: var(--scene-blue); }
+  .dress-wash { fill: var(--scene-rose); }
+  .coat-wash { fill: var(--scene-coat); }
+  .hair { stroke: var(--scene-hair); }
+  .man .walking-shoe { fill: var(--scene-blue); }
+  .woman .walking-shoe { fill: var(--scene-rose); }
   .fine { stroke-width: 1.25; }
-  .setting { stroke: var(--ink-3); opacity: 0.65; }
-  .sun { stroke-width: 1.5; }
-  .ground { opacity: 0.5; }
+  .setting { stroke: var(--ink-3); }
+  .sun { stroke: var(--scene-hair); stroke-width: 1.5; }
+  .breeze, .ground { opacity: 0.5; }
+  .sprig { stroke: var(--scene-green); }
+  .leaf { fill: var(--scene-green); stroke: none; }
+  .flower { stroke: var(--scene-accent); stroke-width: 0.8; }
+  .wing { fill: var(--scene-rose); stroke: var(--scene-accent); stroke-width: 0.9; }
   .arm, .limb { stroke-width: 2.2; }
   .far-leg { stroke: var(--ink-3); }
   .leg-clear { stroke: var(--scene-paper); stroke-width: 6; }
@@ -167,6 +210,7 @@ const { caption } = Astro.props;
   .opposite, .opposite .walking-shoe { animation-delay: -1.2s; }
   .free-arm { animation: arm-swing 2.4s ease-in-out infinite; }
   .tail-wag { animation: tail-wag 0.8s ease-in-out infinite alternate; }
+  .butterfly { transform-origin: 0px 0px; animation: butterfly-float 4.8s ease-in-out infinite; }
 
   @keyframes walk {
     0%, 100% { transform: scaleY(1.0223) rotate(-12deg); }
@@ -189,6 +233,11 @@ const { caption } = Astro.props;
   @keyframes tail-wag {
     from { transform: rotate(-8deg); }
     to { transform: rotate(12deg); }
+  }
+
+  @keyframes butterfly-float {
+    0%, 100% { transform: translate(0, 0) rotate(-8deg); }
+    50% { transform: translate(8px, -7px) rotate(12deg); }
   }
 
   @media (prefers-reduced-motion: reduce) {
