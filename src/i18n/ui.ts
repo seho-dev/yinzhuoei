@@ -6,6 +6,7 @@ export const ui = {
   en: {
     'nav.home': 'Home',
     'nav.blog': 'Blog',
+    'nav.reports': 'Daily Report',
     'nav.skip': 'Skip to content',
     'home.writings': 'Selected writing',
     'home.writings.all': 'All posts',
@@ -49,6 +50,7 @@ export const ui = {
   zh: {
     'nav.home': '首页',
     'nav.blog': '文章',
+    'nav.reports': '每日报告',
     'nav.skip': '跳到正文',
     'home.writings': '精选文章',
     'home.writings.all': '全部文章',

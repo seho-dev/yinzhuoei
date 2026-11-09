@@ -36,6 +36,12 @@ function isActive(key: string) {
       <a href={localePath(lang, '/blog')} class:list={['nav-link', { active: isActive('blog') }]} aria-current={isActive('blog') ? 'page' : undefined}>
         {t('nav.blog')}
       </a>
+      <a href={site.reportsUrl} class="nav-link nav-link-external" target="_blank" rel="noopener noreferrer">
+        {t('nav.reports')}
+        <svg class="ext-icon" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 17 17 7M9 7h8v8" />
+        </svg>
+      </a>
     </nav>
 
     <div class="header-actions">
@@ -119,11 +125,32 @@ function isActive(key: string) {
   .nav-link:hover::after { transform: scaleX(1); }
   .nav-link.active { color: var(--ink); }
   .nav-link.active::after { transform: scaleX(1); }
+  .nav-link-external {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+  .ext-icon {
+    flex: none;
+    opacity: 0.45;
+    transition: opacity 0.2s ease, transform 0.25s var(--ease-out);
+  }
+  .nav-link-external:hover .ext-icon {
+    opacity: 1;
+    transform: translate(1px, -1px);
+  }
   .header-actions {
     margin-left: auto;
     display: flex;
     align-items: center;
     gap: 0.35rem;
+  }
+  @media (max-width: 560px) {
+    .header-inner { gap: 0.75rem; }
+    .main-nav { margin-left: 0; gap: 0; }
+    .nav-link { padding: 0.4rem 0.4rem; font-size: 0.8rem; }
+    .nav-link::after { left: 0.4rem; right: 0.4rem; }
+    .brand-name { display: none; }
   }
 </style>
 

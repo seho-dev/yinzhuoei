@@ -3,6 +3,8 @@ export const site = {
   name: 'Seho',
   title: 'Seho — Software Engineer',
   url: 'https://yinzhuoei.com',
+  /** External daily tech report site, linked from the header nav. */
+  reportsUrl: 'https://report.yinzhuoei.com',
   description: {
     en: 'Seho is a software engineer from China working on frontend engineering, AI tooling and open source.',
     zh: 'Seho，来自中国的软件工程师，关注前端工程、AI 工具与开源。',
@@ -54,4 +56,5 @@ export const profile = {
 export const nav = [
   { key: 'home', path: '' },
   { key: 'blog', path: 'blog' },
+  { key: 'reports', url: 'https://report.yinzhuoei.com', external: true },
 ] as const;
